@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549474412324",
+    "project_id": "ibankingapplication-2f4a7",
+    "storage_bucket": "ibankingapplication-2f4a7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549474412324:android:c414ebab9cc9e9403df5b1",
+        "android_client_info": {
+          "package_name": "com.example.ibankingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDKhgYpB0UQKiM_4Vm_FPK5vAX-k97CT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

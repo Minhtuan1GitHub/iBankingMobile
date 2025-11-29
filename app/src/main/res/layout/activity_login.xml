@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.example.ibankingapp.viewModel.login.LoginViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Instagram"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="48dp"
+            android:textColor="@android:color/black"/>
+
+        <EditText
+            android:id="@+id/edtUserName"
+            android:text="@={vm.email}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:inputType="text"
+            android:padding="16dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:layout_marginBottom="16dp"/>
+
+        <EditText
+            android:id="@+id/edtPassword"
+            android:text="@={vm.password}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="16dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btnSignIn"
+            android:onClick="@{()->vm.onLoginClick()}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đăng nhập"
+            android:padding="16dp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rounded_button_bg" />
+
+    </LinearLayout>
+
+</layout>
