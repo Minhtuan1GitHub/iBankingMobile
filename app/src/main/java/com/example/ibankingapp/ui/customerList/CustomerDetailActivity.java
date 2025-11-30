@@ -40,7 +40,10 @@ public class CustomerDetailActivity extends AppCompatActivity {
             currentCustomer = customer;
             customerDetailBinding.edtName.setText(currentCustomer.getFullName());
             customerDetailBinding.edtPhone.setText(currentCustomer.getPhone());
-
+            customerDetailBinding.tbBalance.setText(String.valueOf(currentCustomer.getBalance()));
+            customerDetailBinding.tbAccountNumberValue.setText(currentCustomer.getAccountNumber());
+            customerDetailBinding.tbAccountType.setText(currentCustomer.getAccountType());
+            customerDetailBinding.edtOtp.setText(currentCustomer.getOtp());
 
         });
         customerDetailBinding.btnSave.setOnClickListener(v->updateCustomer());
@@ -57,9 +60,12 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
         String name = customerDetailBinding.edtName.getText().toString();
         String phone = customerDetailBinding.edtPhone.getText().toString();
+        String otp = customerDetailBinding.edtOtp.getText().toString();
 
         currentCustomer.setFullName(name);
         currentCustomer.setPhone(phone);
+        currentCustomer.setOtp(otp);
+
 
         viewModelCustomerDetail.updateCustomer(currentCustomer);
 

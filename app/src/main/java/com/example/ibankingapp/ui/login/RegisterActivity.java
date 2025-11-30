@@ -7,6 +7,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ibankingapp.databinding.ActivityRegisterBinding;
+import com.example.ibankingapp.entity.CustomerEntity;
+import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.ui.admin.AdminActivity;
 import com.example.ibankingapp.viewModel.login.FirebaseAuthManager;
 import com.example.ibankingapp.viewModel.login.FirestoreManager;
@@ -18,6 +21,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuthManager authManager = new FirebaseAuthManager();
     private FirestoreManager storeManager = new FirestoreManager();
+    private CustomerRepository repository;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +30,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         registerBinding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(registerBinding.getRoot());
+        repository = new CustomerRepository(this);
+
 
         registerBinding.btnCreateCustomer.setOnClickListener(v -> attemptCustomerRegistration());
     }
@@ -39,6 +46,8 @@ public class RegisterActivity extends AppCompatActivity {
         String accountTypeValue = registerBinding.edtAccountType.getText().toString().trim();
         String balanceText = registerBinding.edtBalance.getText().toString().trim();
         String phoneValue = registerBinding.edtPhone.getText().toString().trim();
+        String otpValue = registerBinding.edtOtp.getText().toString().trim();
+
 
         // 1. Validation
 
@@ -65,7 +74,8 @@ public class RegisterActivity extends AppCompatActivity {
         authManager.register(emailValue, passwordValue, task -> {
             if (task.isSuccessful()) {
                 String uid = task.getResult().getUser().getUid();
-                saveCustomerDetails(uid, fullnameValue, accountnumberValue, accountTypeValue, balanceValue, phoneValue);
+
+                saveCustomerDetails(uid, fullnameValue, accountnumberValue, accountTypeValue, balanceValue, phoneValue, otpValue);
             } else {
                 Toast.makeText(this, "Lỗi xác thực Firebase: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -73,17 +83,34 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-    private void saveCustomerDetails(String uid, String fullname, String accountNum, String accountType, double balance, String phone) {
-        storeManager.saveCustomerIn4(uid, fullname, accountNum, accountType, balance, phone, saveTask -> {
-            if (saveTask.isSuccessful()) {
-                Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_LONG).show();
-                // TODO: Add logic to navigate to the next screen (e.g., Login or Admin Dashboard)
-                // finish();
-                startActivity(new Intent(this, AdminActivity.class));
-            } else {
-                Toast.makeText(this, "Lỗi lưu thông tin khách hàng: " + saveTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+    private void saveCustomerDetails(String uid, String fullname, String accountNum, String accountType, double balance, String phone, String otp) {
+//        storeManager.saveCustomerIn4(uid, fullname, accountNum, accountType, balance, phone, otp,  saveTask -> {
+//            if (saveTask.isSuccessful()) {
+//                Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_LONG).show();
+//                // TODO: Add logic to navigate to the next screen (e.g., Login or Admin Dashboard)
+//                // finish();
+//                startActivity(new Intent(this, AdminActivity.class));
+//            } else {
+//                Toast.makeText(this, "Lỗi lưu thông tin khách hàng: " + saveTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+//
+//            }
+//        });
+        CustomerEntity customer = new CustomerEntity();
+        customer.setId(uid);
+        customer.setFullName(fullname);
+        customer.setAccountNumber(accountNum);
+        customer.setAccountType(accountType);
+        customer.setBalance(balance);
+        customer.setPhone(phone);
+        customer.setRole("customer");
+        customer.setOtp(otp);
 
-            }
-        });
+        repository.insert(customer);
+        Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_LONG).show();
+        startActivity(new Intent(this, AdminActivity.class));
+        finish();
+
+
+
     }
 }

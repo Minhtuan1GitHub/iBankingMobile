@@ -70,7 +70,12 @@ public class CustomerListActivity extends AppCompatActivity {
     private void loadCustomers() {
         new Thread(() -> {
             customers.clear();
-            customers.addAll(repository.getAllCustomers());
+            //customers.addAll(repository.getAllCustomers());
+            for (Customer c: repository.getAllCustomers()){
+                if ("customer".equals(c.getRole())){
+                    customers.add(c);
+                }
+            }
             runOnUiThread(() -> adapter.notifyDataSetChanged());
         }).start();   // 🔥 QUAN TRỌNG: phải start thread
     }

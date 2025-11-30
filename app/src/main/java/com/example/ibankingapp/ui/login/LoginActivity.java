@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
     private void observeData(){
         viewModelLogin.getLoginResult().observe(this, success->{
             if (success){
+//                startActivity(new Intent(this, AdminActivity.class));
+
 
                 // check role
                 String uid = auth.getCurrentUser().getUid();

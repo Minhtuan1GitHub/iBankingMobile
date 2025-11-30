@@ -1,6 +1,7 @@
 package com.example.ibankingapp.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +10,7 @@ import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.entity.CustomerEntity;
 import com.example.ibankingapp.model.Customer;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,15 +32,24 @@ public class CustomerRepository {
     // ------------------------------------------------------
     // INSERT
     // ------------------------------------------------------
-    public void insert(CustomerEntity customer){
+    public void insert(CustomerEntity customer) {
         executor.execute(() -> {
+            // Lấy uid từ FirebaseAuth
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            customer.setId(uid); // uid = id Firestore
+
+            // Lưu Room
             customerDao.insertCustomer(customer);
 
+            // Lưu Firestore với document id = uid
             firestore.collection("customers")
-                    .document(customer.getAccountNumber())
-                    .set(customer);
+                    .document(uid)
+                    .set(customer)
+                    .addOnSuccessListener(aVoid -> Log.d("CustomerRepo", "Inserted Firestore doc: " + uid))
+                    .addOnFailureListener(e -> Log.e("CustomerRepo", "Insert failed", e));
         });
     }
+
 
     // ------------------------------------------------------
     // GET ALL (Room -> UI)
@@ -125,6 +136,10 @@ public class CustomerRepository {
                             entity.setAccountNumber(doc.getString("accountNumber"));
                             entity.setAccountType(doc.getString("accountType"));
                             entity.setPhone(doc.getString("phone"));
+                            entity.setRole(doc.getString("role"));
+                            entity.setOtp(doc.getString("otp"));
+
+
                             Object balanceObj = doc.get("balance");
                             if (balanceObj instanceof Number) {
                                 entity.setBalance(((Number) balanceObj).doubleValue());
@@ -147,7 +162,9 @@ public class CustomerRepository {
         c.setAccountNumber(e.getAccountNumber());
         c.setAccountType(e.getAccountType());
         c.setBalance(e.getBalance());
+        c.setRole(e.getRole());
         c.setPhone(e.getPhone());
+        c.setOtp(e.getOtp());
         return c;
     }
 
@@ -157,7 +174,9 @@ public class CustomerRepository {
         e.setAccountNumber(c.getAccountNumber());
         e.setAccountType(c.getAccountType());
         e.setBalance(c.getBalance());
+        e.setRole(c.getRole());
         e.setPhone(c.getPhone());
+        e.setOtp(c.getOtp());
         return e;
     }
 }

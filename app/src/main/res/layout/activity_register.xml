@@ -39,6 +39,14 @@
             android:inputType="textCapWords"/>
 
         <EditText
+            android:id="@+id/edtOtp"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="Otp"
+            android:inputType="textCapWords"/>
+
+
+        <EditText
             android:id="@+id/edtPhone"
             android:layout_width="match_parent"
             android:layout_height="48dp"

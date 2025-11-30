@@ -9,6 +9,7 @@ import com.example.ibankingapp.databinding.ActivityAdminBinding;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
 import com.example.ibankingapp.ui.customerList.CustomerListActivity;
 import com.example.ibankingapp.ui.login.RegisterActivity;
+import com.example.ibankingapp.ui.setting.SettingActivity;
 
 public class AdminActivity extends AppCompatActivity {
     private ActivityAdminBinding adminBinding;
@@ -25,6 +26,10 @@ public class AdminActivity extends AppCompatActivity {
 
         adminBinding.fabCustomerList.setOnClickListener(v->{
             startActivity(new Intent(this, CustomerListActivity.class));
+        });
+
+        adminBinding.fabLogout.setOnClickListener(v->{
+            startActivity(new Intent(this, SettingActivity.class));
         });
     }
 

@@ -11,7 +11,7 @@ public class FirestoreManager {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public void saveCustomerIn4(String uid, String fullName, String accountNumber,
-                                String accountType, double balance, String phone,
+                                String accountType, double balance, String phone, String otp,
                                 OnCompleteListener<Void> listener){
         Map<String, Object> data = new HashMap<>();
 
@@ -23,6 +23,8 @@ public class FirestoreManager {
         data.put("phone", phone);
         data.put("role", "customer");
         data.put("createdAt", FieldValue.serverTimestamp());
+        data.put("otp", otp);
+
 
         db.collection("customers")
                 .document(uid)

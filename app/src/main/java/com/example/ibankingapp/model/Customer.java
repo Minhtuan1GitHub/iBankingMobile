@@ -7,6 +7,28 @@ public class Customer {
     private String accountType;
     private double balance;
     private String phone;
+    private String role;
+    private String otp;
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public String getFullName() {
         return fullName;

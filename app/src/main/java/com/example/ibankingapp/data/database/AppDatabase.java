@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.entity.CustomerEntity;
 
-@Database(entities = {CustomerEntity.class}, version = 3)
+@Database(entities = {CustomerEntity.class}, version = 6)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract CustomerDao customerDao();
