@@ -34,19 +34,21 @@ public class Customer {
         return fullName;
     }
 
+
+
     public String getId() {
         return id;
     }
 
-    public void setId(Object id) {
-        if (id instanceof Long) {
-            this.id = String.valueOf(id); // convert Long -> String
-        } else if (id instanceof String) {
-            this.id = (String) id;
-        } else {
-            this.id = null;
-        }
-    }
+//    public void setId(Object id) {
+//        if (id instanceof Long) {
+//            this.id = String.valueOf(id); // convert Long -> String
+//        } else if (id instanceof String) {
+//            this.id = (String) id;
+//        } else {
+//            this.id = null;
+//        }
+//    }
 
     public void setFullName(String fullName) {
         this.fullName = fullName;

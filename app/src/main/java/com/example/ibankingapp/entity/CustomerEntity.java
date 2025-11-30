@@ -10,7 +10,6 @@ public class CustomerEntity {
     @PrimaryKey
     @NonNull
     private String id;
-
     private String fullName;
     private String accountNumber;
     private String accountType;
@@ -38,6 +37,7 @@ public class CustomerEntity {
     public String getId() {
         return id;
     }
+
 
     public void setId(String id) {
         this.id = id;
@@ -82,4 +82,6 @@ public class CustomerEntity {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+
 }

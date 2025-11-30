@@ -92,8 +92,8 @@ public class CustomerRepository {
             String docId = entity.getId();
             if (docId == null || docId.isEmpty()) {
                 // Nếu id null, fallback dùng accountNumber
-                docId = entity.getAccountNumber();
-                entity.setId(docId);
+                System.out.println("Customer ID chưa có, không thể update Firestore");
+                return;
             }
 
             firestore.collection("customers")
@@ -158,6 +158,7 @@ public class CustomerRepository {
     // ------------------------------------------------------
     private Customer convertToModel(CustomerEntity e) {
         Customer c = new Customer();
+        c.setId(e.getId());
         c.setFullName(e.getFullName());
         c.setAccountNumber(e.getAccountNumber());
         c.setAccountType(e.getAccountType());
@@ -170,6 +171,7 @@ public class CustomerRepository {
 
     private CustomerEntity convertToEntity(Customer c) {
         CustomerEntity e = new CustomerEntity();
+        e.setId(c.getId());
         e.setFullName(c.getFullName());
         e.setAccountNumber(c.getAccountNumber());
         e.setAccountType(c.getAccountType());

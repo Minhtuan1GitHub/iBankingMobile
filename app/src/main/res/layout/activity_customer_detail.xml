@@ -145,6 +145,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="1.500.000 VND" />
 
+
+
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             android:layout_width="0dp"
