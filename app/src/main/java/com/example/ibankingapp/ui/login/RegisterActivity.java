@@ -1,11 +1,13 @@
 package com.example.ibankingapp.ui.login;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ibankingapp.databinding.ActivityRegisterBinding;
+import com.example.ibankingapp.ui.admin.AdminActivity;
 import com.example.ibankingapp.viewModel.login.FirebaseAuthManager;
 import com.example.ibankingapp.viewModel.login.FirestoreManager;
 
@@ -36,6 +38,9 @@ public class RegisterActivity extends AppCompatActivity {
         String accountnumberValue = registerBinding.edtAccountNumber.getText().toString().trim();
         String accountTypeValue = registerBinding.edtAccountType.getText().toString().trim();
         String balanceText = registerBinding.edtBalance.getText().toString().trim();
+        String phoneValue = registerBinding.edtPhone.getText().toString().trim();
+
+        // 1. Validation
 
         if (emailValue.isEmpty() || passwordValue.isEmpty() || fullnameValue.isEmpty() ||
                 accountnumberValue.isEmpty() || accountTypeValue.isEmpty() || balanceText.isEmpty()) {
@@ -60,7 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
         authManager.register(emailValue, passwordValue, task -> {
             if (task.isSuccessful()) {
                 String uid = task.getResult().getUser().getUid();
-                saveCustomerDetails(uid, fullnameValue, accountnumberValue, accountTypeValue, balanceValue);
+                saveCustomerDetails(uid, fullnameValue, accountnumberValue, accountTypeValue, balanceValue, phoneValue);
             } else {
                 Toast.makeText(this, "Lỗi xác thực Firebase: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -68,12 +73,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-    private void saveCustomerDetails(String uid, String fullname, String accountNum, String accountType, double balance) {
-        storeManager.saveCustomerIn4(uid, fullname, accountNum, accountType, balance, saveTask -> {
+    private void saveCustomerDetails(String uid, String fullname, String accountNum, String accountType, double balance, String phone) {
+        storeManager.saveCustomerIn4(uid, fullname, accountNum, accountType, balance, phone, saveTask -> {
             if (saveTask.isSuccessful()) {
                 Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_LONG).show();
                 // TODO: Add logic to navigate to the next screen (e.g., Login or Admin Dashboard)
                 // finish();
+                startActivity(new Intent(this, AdminActivity.class));
             } else {
                 Toast.makeText(this, "Lỗi lưu thông tin khách hàng: " + saveTask.getException().getMessage(), Toast.LENGTH_LONG).show();
 

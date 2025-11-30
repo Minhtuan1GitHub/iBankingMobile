@@ -1,0 +1,59 @@
+package com.example.ibankingapp.viewModel.customer;
+
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.CustomerRepository;
+
+import java.util.List;
+import java.util.concurrent.Executors;
+
+public class CustomerViewModel extends AndroidViewModel {
+
+    private final CustomerRepository repository;
+    private final MutableLiveData<List<Customer>> customers = new MutableLiveData<>();
+
+    public CustomerViewModel(@NonNull Application application) {
+        super(application);
+        repository = new CustomerRepository(application);
+
+        // Lắng nghe Firestore → cập nhật Room
+        repository.listenFirestoreChanges();
+
+        // Load từ Room khi ViewModel khởi tạo
+        loadCustomers();
+    }
+
+    // --------------------------------------------------------
+    // GET ALL CUSTOMERS (Room)
+    // --------------------------------------------------------
+    public LiveData<List<Customer>> getCustomers() {
+        return customers;
+    }
+
+    private void loadCustomers() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Customer> list = repository.getAllCustomers();
+            customers.postValue(list);
+        });
+    }
+
+    // --------------------------------------------------------
+    // GET ONE BY ACCOUNT NUMBER
+    // --------------------------------------------------------
+    public LiveData<Customer> getCustomerByAccountNumber(String accountNumber) {
+        return repository.getCustomerByAccountNumber(accountNumber);
+    }
+
+    // --------------------------------------------------------
+    // UPDATE CUSTOMER
+    // --------------------------------------------------------
+    public void updateCustomer(Customer customer) {
+        repository.updateCustomer(customer);
+    }
+}

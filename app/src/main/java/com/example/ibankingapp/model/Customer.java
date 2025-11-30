@@ -1,0 +1,64 @@
+package com.example.ibankingapp.model;
+
+public class Customer {
+    private String id;
+    private String fullName;
+    private String accountNumber;
+    private String accountType;
+    private double balance;
+    private String phone;
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(Object id) {
+        if (id instanceof Long) {
+            this.id = String.valueOf(id); // convert Long -> String
+        } else if (id instanceof String) {
+            this.id = (String) id;
+        } else {
+            this.id = null;
+        }
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+}

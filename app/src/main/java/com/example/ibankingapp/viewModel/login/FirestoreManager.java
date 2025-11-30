@@ -11,14 +11,16 @@ public class FirestoreManager {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public void saveCustomerIn4(String uid, String fullName, String accountNumber,
-                                String accountType, double balance,
+                                String accountType, double balance, String phone,
                                 OnCompleteListener<Void> listener){
         Map<String, Object> data = new HashMap<>();
 
+        data.put("uid", uid);
         data.put("fullName", fullName);
         data.put("accountNumber", accountNumber);
         data.put("accountType", accountType);
         data.put("balance", balance);
+        data.put("phone", phone);
         data.put("role", "customer");
         data.put("createdAt", FieldValue.serverTimestamp());
 
