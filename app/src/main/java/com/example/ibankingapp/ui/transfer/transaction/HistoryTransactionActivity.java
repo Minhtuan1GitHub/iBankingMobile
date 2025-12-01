@@ -24,8 +24,7 @@ public class HistoryTransactionActivity extends AppCompatActivity {
     private ActivityHistoryTransactionBinding binding;
     private TransactionViewModel viewModel;
     private CustomerRepository customerRepository;
-
-
+    private TransactionAdapter adapter; // <-- khai báo ở đây
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,51 +36,52 @@ public class HistoryTransactionActivity extends AppCompatActivity {
         customerRepository = new CustomerRepository(this);
         customerRepository.listenFirestoreChanges();
 
-        // Tạo adapter rỗng trước
-        TransactionAdapter adapter = new TransactionAdapter();
-        binding.rvTransactionHistory.setAdapter(adapter);
+        // RecyclerView layout
         binding.rvTransactionHistory.setLayoutManager(new LinearLayoutManager(this));
-
-       // String currentAccount = getIntent().getStringExtra("accountNumber");
-        //String currentAccount = "113";
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String curentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db.collection("customers")
-                        .document(curentUserId)
-                                .get()
-                                        .addOnSuccessListener(doc -> {
-                                            if (doc.exists()) {
-                                                String currentAccount = doc.getString("accountNumber");
-                                                if (currentAccount != null) {
-                                                    viewModel.loadTransactions(currentAccount);
-                                                }
-                                            }
-                                        })
-                                                .addOnFailureListener(e -> {
-                                                    // Xử lý lỗi
-                                                });
+                .document(curentUserId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        String currentAccount = doc.getString("accountNumber");
+                        if (currentAccount != null) {
+                            // Tạo adapter với currentAccount
+                            adapter = new TransactionAdapter(currentAccount);
+                            binding.rvTransactionHistory.setAdapter(adapter);
 
+                            adapter.setOnTransactionClickListener(transaction -> {
+                                Intent intent = new Intent(this, TransactionDetailActivity.class);
+                                intent.putExtra("transaction", transaction);
+                                startActivity(intent);
+                            });
 
+                            viewModel.loadTransactions(currentAccount);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Xử lý lỗi
+                });
 
-       // viewModel.loadTransactions(currentAccount);
-
+        // Observer
         viewModel.getTransactions().observe(this, transactions -> {
             if (transactions != null && !transactions.isEmpty()) {
                 binding.tvNoData.setVisibility(View.GONE);
-                adapter.setTransactions(transactions);
-//                for (TransactionDisplay t : transactions) {
-//                    Log.d("HistoryTransaction", "Recipient: " + t.getRecipientName() + ", STK: " + t.getTransaction().getToAcountNumber());
-//                }
+                if (adapter != null) {
+                    adapter.setTransactions(transactions);
+                }
             } else {
                 binding.tvNoData.setVisibility(View.VISIBLE);
-                adapter.setTransactions(Collections.emptyList());
+                if (adapter != null) {
+                    adapter.setTransactions(Collections.emptyList());
+                }
             }
         });
 
         binding.fabHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
     }
-
-
-
 }
+

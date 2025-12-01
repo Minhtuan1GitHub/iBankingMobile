@@ -2,7 +2,10 @@ package com.example.ibankingapp.utils;
 
 import com.example.ibankingapp.entity.TransactionEntity;
 
-public class TransactionDisplay {
+import java.io.Serializable;
+
+public class TransactionDisplay implements Serializable
+    {
     private final TransactionEntity transaction;
     private final String recipientName;
 

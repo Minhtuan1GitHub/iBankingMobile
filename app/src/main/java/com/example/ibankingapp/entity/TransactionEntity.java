@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "transactions_db")
-public class TransactionEntity {
+public class TransactionEntity implements Serializable {
 
     @PrimaryKey
     @NonNull

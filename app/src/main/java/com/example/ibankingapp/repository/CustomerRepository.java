@@ -24,7 +24,9 @@ public class CustomerRepository {
     private final FirebaseFirestore firestore;
     private final java.util.concurrent.Executor executor = Executors.newSingleThreadExecutor();
     private final TransactionRepository transactionRepository;
-
+    public interface OnCustomerNameListener {
+        void onNameFetched(String name);
+    }
 
     public CustomerRepository(Context context){
         customerDao = AppDatabase.getInstance(context).customerDao();
