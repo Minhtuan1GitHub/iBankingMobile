@@ -21,6 +21,17 @@
             android:layout_marginTop="100dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Mở màn hình Lịch sử Giao dịch"
+            app:srcCompat="@drawable/outline_change_history_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/fabSetting" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabSetting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,18 +40,20 @@
             android:contentDescription="Mở màn hình Cài Đặt"
             app:srcCompat="@drawable/outline_all_out_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/fabTransfer" /> <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabTransfer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:contentDescription="Tạo giao dịch Chuyển Khoản Mới"
-        android:backgroundTint="?attr/colorSecondary"
-        app:tint="@android:color/white"
-        app:srcCompat="@drawable/outline_attach_money_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintBottom_toTopOf="@+id/fabTransfer" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabTransfer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            android:contentDescription="Tạo giao dịch Chuyển Khoản Mới"
+            android:backgroundTint="?attr/colorSecondary"
+            app:tint="@android:color/white"
+            app:srcCompat="@drawable/outline_attach_money_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

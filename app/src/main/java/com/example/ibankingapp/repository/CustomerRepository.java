@@ -23,10 +23,13 @@ public class CustomerRepository {
     private final CustomerDao customerDao;
     private final FirebaseFirestore firestore;
     private final java.util.concurrent.Executor executor = Executors.newSingleThreadExecutor();
+    private final TransactionRepository transactionRepository;
+
 
     public CustomerRepository(Context context){
         customerDao = AppDatabase.getInstance(context).customerDao();
         firestore = FirebaseFirestore.getInstance();
+        transactionRepository = new TransactionRepository(AppDatabase.getInstance(context).transactionDao());
     }
 
     // ------------------------------------------------------
@@ -183,7 +186,29 @@ public class CustomerRepository {
     }
 
     public boolean transfer(String from, String to, double amount){
-        return customerDao.transfer(from, to, amount);
+        //return customerDao.transfer(from, to, amount);
+
+
+        boolean success = customerDao.transfer(from, to, amount);
+        if (!success){
+            transactionRepository.logTransaction(from, to, amount, "fail");
+            return false;
+        }
+
+        CustomerEntity sender = customerDao.getCustomerByAccountNumber(from);
+        CustomerEntity receiver = customerDao.getCustomerByAccountNumber(to);
+
+        firestore.collection("customers").document(sender.getId()).set(sender);
+        firestore.collection("customers").document(receiver.getId()).set(receiver);
+
+        transactionRepository.logTransaction(from, to, amount, "success");
+
+
+
+        return true;
+    }
+    public CustomerEntity getCustomerByAccount(String accountNumber) {
+        return customerDao.getCustomerByAccount(accountNumber);
     }
 
 }

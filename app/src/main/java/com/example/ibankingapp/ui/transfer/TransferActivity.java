@@ -161,24 +161,7 @@ public class TransferActivity extends AppCompatActivity {
     }
 
     private void verifyOtpAndTransfer(String from, String to, double amount, String otp) {
-//        if (otp.isEmpty()) {
-//            Toast.makeText(this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        if (verifyOtp(otp)){
-//            // Gọi ViewModel, observe kết quả
-//            viewModel.transfer(from, to, amount).observe(this, success -> {
-//                if (success != null && success) {
-//                    Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
-//                    startActivity(new Intent(this, SuccessfullTransferActivity.class));
-//                } else {
-//                    Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//        } else {
-//            Toast.makeText(this, "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
-//
-//        }
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -207,7 +190,16 @@ public class TransferActivity extends AppCompatActivity {
         viewModel.transfer(from, to, amount).observe(this, success -> {
                 if (success != null && success) {
                     Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, SuccessfullTransferActivity.class));
+
+                    //startActivity(new Intent(this, SuccessfullTransferActivity.class));
+                    Intent intent = new Intent(this, SuccessfullTransferActivity.class);
+                    intent.putExtra("from", from);
+                    intent.putExtra("to", to);
+                    intent.putExtra("amount", amount);
+                    intent.putExtra("time", System.currentTimeMillis());
+                    intent.putExtra("name", currentCustomer.getFullName());
+                    startActivity(intent);
+
                 } else {
                     Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
                 }

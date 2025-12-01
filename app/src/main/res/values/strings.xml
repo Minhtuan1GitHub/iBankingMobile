@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">iBankingApp</string>
+    <string name="transaction_success_title">GIAO DICH THANH CONG</string>
 </resources>
