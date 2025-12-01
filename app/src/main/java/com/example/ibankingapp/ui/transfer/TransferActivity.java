@@ -4,21 +4,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.databinding.ActivityTransferBinding;
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.ui.home.HomeActivity;
+import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class TransferActivity extends AppCompatActivity {
+
     private ActivityTransferBinding transferBinding;
     private Customer currentCustomer;
-
-
+    private CustomerViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,54 +32,54 @@ public class TransferActivity extends AppCompatActivity {
         transferBinding = ActivityTransferBinding.inflate(getLayoutInflater());
         setContentView(transferBinding.getRoot());
 
+        viewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
 
-        transferBinding.fabHome.setOnClickListener(v->{
+        transferBinding.fabHome.setOnClickListener(v -> {
             startActivity(new Intent(this, HomeActivity.class));
         });
 
         loadCurrentCustomer();
-        setupReciverLookup();
+        setupReceiverLookup();
+        transferBinding.btnTransfer.setOnClickListener(v -> clickTransfer());
     }
 
-    private void loadCurrentCustomer(){
+    private void loadCurrentCustomer() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
+
         String uid = user.getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("customers")
                 .document(uid)
                 .get()
-                .addOnSuccessListener(doc->{
-                    if (doc.exists()){
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
                         currentCustomer = doc.toObject(Customer.class);
                         if (currentCustomer != null) {
                             transferBinding.tvSourceBalance.setText(String.valueOf(currentCustomer.getBalance()));
                         }
                     }
-                });
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Lỗi load tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void setupReciverLookup(){
+    private void setupReceiverLookup() {
         transferBinding.edtRecipientAccount.addTextChangedListener(new TextWatcher() {
             @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+            public void afterTextChanged(Editable s) { }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String accountNumberValue = s.toString().trim();
-                if (accountNumberValue.isEmpty()){
-                    transferBinding.tvRecipientName.setText("");
+                String accountNumber = s.toString().trim();
+                if (accountNumber.isEmpty()) {
+                    transferBinding.tvRecipientName.setText("No recipient found");
+                    transferBinding.tvRecipientName.setVisibility(View.GONE);
                     return;
                 }
-                lookupRecipient(accountNumberValue);
-
+                lookupRecipient(accountNumber);
             }
         });
     }
@@ -84,16 +90,128 @@ public class TransferActivity extends AppCompatActivity {
                 .whereEqualTo("accountNumber", accountNumber)
                 .limit(1)
                 .get()
-                .addOnSuccessListener(query->{
+                .addOnSuccessListener(query -> {
                     if (!query.isEmpty()) {
                         Customer recipient = query.getDocuments().get(0).toObject(Customer.class);
-                        transferBinding.tvRecipientName.setText(recipient.getFullName());
+                        if (recipient != null && recipient.getFullName() != null) {
+                            transferBinding.tvRecipientName.setText(recipient.getFullName());
+                            transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+                        } else {
+                            transferBinding.tvRecipientName.setText("No recipient found");
+                            transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+                        }
                     } else {
                         transferBinding.tvRecipientName.setText("No recipient found");
+                        transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    transferBinding.tvRecipientName.setText("Error: " + e.getMessage());
+                    transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+                });
+    }
+
+    private void clickTransfer() {
+        if (currentCustomer == null) {
+            Toast.makeText(this, "Đang load dữ liệu tài khoản nguồn, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String from = currentCustomer.getAccountNumber();
+        String to = transferBinding.edtRecipientAccount.getText().toString().trim();
+        if (to.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số tài khoản người nhận", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String amountStr = transferBinding.edtAmount.getText().toString().trim();
+        if (amountStr.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số tiền chuyển", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showOtpDialog(from, to, amount);
+
+
+    }
+
+    private void showOtpDialog(String from, String to, double amount){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Nhập mã OTP");
+
+        final EditText input = new EditText(this);
+        input.setHint("Mã OTP");
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String otp = input.getText().toString().trim();
+            verifyOtpAndTransfer(from, to, amount, otp);
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void verifyOtpAndTransfer(String from, String to, double amount, String otp) {
+//        if (otp.isEmpty()) {
+//            Toast.makeText(this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        if (verifyOtp(otp)){
+//            // Gọi ViewModel, observe kết quả
+//            viewModel.transfer(from, to, amount).observe(this, success -> {
+//                if (success != null && success) {
+//                    Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+//                    startActivity(new Intent(this, SuccessfullTransferActivity.class));
+//                } else {
+//                    Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        } else {
+//            Toast.makeText(this, "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
+//
+//        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        db.collection("customers")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc->{
+                    if (doc.exists()){
+                        String otpValue = doc.getString("otp");
+                        if (otp.equals(otpValue)){
+                            executeTransfer(from, to, amount);
+                        }else{
+                            Toast.makeText(this, "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
+                        }
+                    }else{
+                        Toast.makeText(this, "Không tìm thấy tài khoản", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e->{
-                    transferBinding.tvRecipientName.setText("Error: " + e.getMessage());
+                    Toast.makeText(this, "Lỗi load tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
                 });
     }
+
+    private void executeTransfer(String from, String to, double amount) {
+        viewModel.transfer(from, to, amount).observe(this, success -> {
+                if (success != null && success) {
+                    Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, SuccessfullTransferActivity.class));
+                } else {
+                    Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
 }

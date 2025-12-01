@@ -56,4 +56,16 @@ public class CustomerViewModel extends AndroidViewModel {
     public void updateCustomer(Customer customer) {
         repository.updateCustomer(customer);
     }
+
+    public LiveData<Boolean> transfer(String from, String to, double amount){
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        Executors.newSingleThreadExecutor().execute(() -> {
+            boolean success = repository.transfer(from, to, amount); // thực hiện transfer
+            if (success){
+                loadCustomers(); // nếu bạn muốn refresh data
+            }
+            result.postValue(success);
+        });
+        return result;
+    }
 }

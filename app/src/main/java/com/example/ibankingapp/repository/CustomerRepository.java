@@ -181,4 +181,9 @@ public class CustomerRepository {
         e.setOtp(c.getOtp());
         return e;
     }
+
+    public boolean transfer(String from, String to, double amount){
+        return customerDao.transfer(from, to, amount);
+    }
+
 }

@@ -5,9 +5,11 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.example.ibankingapp.entity.CustomerEntity;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -31,6 +33,29 @@ public interface CustomerDao {
 
     @Query("DELETE FROM customers_db")
     void clearAll();
+
+    @Transaction
+    default boolean transfer(String from, String to, double amount){
+        CustomerEntity sender = getCustomerByAccountNumber(from);
+        CustomerEntity receiver = getCustomerByAccountNumber(to);
+
+        if (sender == null || receiver == null) return false;
+        if (sender.getBalance() < amount) return false;
+
+        sender.setBalance(sender.getBalance() - amount);
+        receiver.setBalance(receiver.getBalance() + amount);
+
+        updateCustomer(sender);
+        updateCustomer(receiver);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("customers").document(sender.getId()).set(sender);
+        db.collection("customers").document(receiver.getId()).set(receiver);
+
+
+
+        return true;
+    }
 
 
 }
