@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ibankingapp.R;
+import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.utils.TransactionDisplay;
 
 import java.text.NumberFormat;
@@ -20,9 +21,27 @@ import java.util.Locale;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
-    private List<TransactionDisplay> transactions = new ArrayList<>();
+    List<TransactionDisplay> transactions = new ArrayList<>();
+    OnTransactionClickListener listener;
 
-    public TransactionAdapter() { }
+    private String currentAccount;
+
+    public TransactionAdapter(String currentAccount) {
+        this.currentAccount = currentAccount;
+    }
+
+    public TransactionAdapter() {
+        this.currentAccount = null;
+    }
+
+
+    public interface OnTransactionClickListener {
+        void onClick(TransactionDisplay transaction);
+    }
+
+    public void setOnTransactionClickListener(OnTransactionClickListener listener) {
+        this.listener = listener;
+    }
 
     public void setTransactions(List<TransactionDisplay> transactions) {
         this.transactions = transactions;
@@ -33,7 +52,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_transaction, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, this);
     }
 
     @Override
@@ -46,20 +65,31 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return transactions.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvRecipientName, tvRecipientAccount, tvTransactionTime, tvTransactionAmount;
         ImageView ivTransactionIcon;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, TransactionAdapter adapter) {
             super(itemView);
+
             tvRecipientName = itemView.findViewById(R.id.tvRecipientName);
             tvRecipientAccount = itemView.findViewById(R.id.tvRecipientAccount);
             tvTransactionTime = itemView.findViewById(R.id.tvTransactionTime);
             tvTransactionAmount = itemView.findViewById(R.id.tvTransactionAmount);
             ivTransactionIcon = itemView.findViewById(R.id.ivTransactionIcon);
+
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION && adapter.listener != null) {
+                    adapter.listener.onClick(adapter.transactions.get(pos));
+                }
+            });
         }
 
         public void bind(TransactionDisplay t) {
+
+
+
             tvRecipientName.setText(t.getRecipientName());
             tvRecipientAccount.setText("STK: " + t.getTransaction().getToAcountNumber());
 
@@ -69,7 +99,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             NumberFormat money = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
             tvTransactionAmount.setText(money.format(t.getTransaction().getAmount()));
 
-            // ví dụ đổi icon theo type hoặc trạng thái
+            if (t.getTransaction().getToAcountNumber().equals(currentAccount)){
+                tvTransactionAmount.setTextColor(itemView.getResources().getColor(R.color.green));
+            }else {
+                tvTransactionAmount.setTextColor(itemView.getResources().getColor(R.color.red));
+
+            }
+
+
+
             ivTransactionIcon.setImageResource(R.drawable.ic_send_money_24);
         }
     }

@@ -74,6 +74,11 @@
             android:exported="true"
             >
         </activity>
+        <activity
+            android:name=".ui.transfer.transaction.TransactionDetailActivity"
+            android:exported="true"
+            >
+        </activity>
 
     </application>
 
