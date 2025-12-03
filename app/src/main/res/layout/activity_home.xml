@@ -102,38 +102,66 @@
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="10sp"
                     android:layout_margin="20dp"
-                    android:padding="10dp"
                     app:cardElevation="10dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/cardViewTop">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/tvSodu"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=" Số dư của bạn"
-                            android:layout_marginLeft="12dp"
-                            android:padding="5dp"
+                            android:layout_marginStart="8dp"
                             android:drawableStart="@drawable/ic_balance_wallet"
+                            android:padding="5dp"
+                            android:text=" Số dư của bạn"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            />
+                            app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/tvBalance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="12dp"
+                            android:layout_marginStart="8dp"
                             android:padding="6dp"
                             android:text="123,456,789 VND"
-                            android:textSize="20sp"
+                            android:textSize="24sp"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/tvSodu" />
+
+
+                        <ImageButton
+                            android:id="@+id/imgQRCode"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="36dp"
+                            android:background="@null"
+
+                            android:src="@drawable/ic_visibility_off"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
+
+                            app:layout_constraintStart_toEndOf="@id/tvBalance"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageButton
+                            android:id="@+id/imgQRCode"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/qr_code_scanner_50"
+                            android:background="@null"
+
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintHorizontal_bias="0.95"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_bias="0.1" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
@@ -143,59 +171,47 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             >
 
+                            <!-- Tra cứu -->
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnTran"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                style="?attr/borderlessButtonStyle"
+                                android:id="@+id/btnCheck"
+                                style="@style/BankingCircleButtonStyle"
+                                android:text="Tra cứu"
+                                app:icon="@drawable/ic_check" />
 
-                                android:text="Chuyển tiền"
-                                android:textColor="@color/black"
-                                android:backgroundTint="@color/white"
-
-                                app:icon="@drawable/ic_transfer_24"
-                                app:iconTint="@color/black"
-                                app:iconGravity="textTop"/>
+                            <!-- Tiết kiệm -->
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnDepo"
-                                android:text="Nạp tiền"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:id="@+id/btnSave"
+                                style="@style/BankingCircleButtonStyle"
+                                android:text="Tiết kiệm"
+                                app:icon="@drawable/ic_saving" />
 
-                                android:textColor="@color/black"
-                                android:backgroundTint="@color/white"
+                            <!-- Khoản vay -->
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnMortgage"
+                                style="@style/BankingCircleButtonStyle"
+                                android:text="Khoản vay"
+                                app:icon="@drawable/ic_loan" />
 
-                                app:icon="@drawable/ic_deposit"
-                                app:iconSize="20dp"
-                                app:iconTint="@color/black"
-                                app:iconGravity="textTop"/>
-
+                            <!-- Sao kê -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnHistory"
+                                style="@style/BankingCircleButtonStyle"
                                 android:text="Lịch sử"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:rippleColor="@color/common_google_signin_btn_text_light_pressed"
-
-                                android:textColor="@color/black"
-                                android:backgroundTint="@color/white"
-
-                                app:icon="@drawable/ic_history_24"
-                                app:iconSize="20dp"
-                                app:iconTint="@color/black"
-                                app:iconGravity="textTop"/>
+                                app:icon="@drawable/ic_history_24" />
 
 
                             <androidx.constraintlayout.helper.widget.Flow
                                 android:id="@+id/flow"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:padding="5dp"
 
-                                app:constraint_referenced_ids="btnTran,btnDepo,btnHistory"
+                                app:constraint_referenced_ids="btnCheck,btnSave,btnMortgage,btnHistory"
                                 app:flow_horizontalGap="5dp"
                                 app:flow_verticalGap="8dp"
 
-                                app:flow_wrapMode="chain"
+                                app:flow_horizontalStyle="spread"
+                                app:flow_wrapMode="none"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintHorizontal_bias="0.0"
 
@@ -229,7 +245,7 @@
                             android:layout_marginHorizontal="12dp"
                             android:text="Giao dịch"
                             android:textSize="16sp"
-                            android:padding="5dp"
+                            android:padding="6dp"
                             android:textStyle="bold"
 
                             app:layout_constraintEnd_toEndOf="parent"
@@ -237,90 +253,73 @@
                             app:layout_constraintTop_toTopOf="parent"
                             />
 
-
                         <!-- Chuyển tiền -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnTransfer"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/BankingButtonStyle"
                             android:text="Chuyển tiền"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
                             app:icon="@drawable/ic_transfer_24"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                             />
 
                         <!-- Nạp tiền -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDeposit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/BankingButtonStyle"
                             android:text="Nạp tiền"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
-                            app:iconSize="25dp"
                             app:icon="@drawable/ic_deposit"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                            />
 
                         <!-- Rút tiền -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnWithdraw"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/BankingButtonStyle"
                             android:text="Rút tiền"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
                             app:icon="@drawable/ic_withdraw"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                            />
 
-                        <!-- Thanh toán hóa đơn -->
+                        <!-- Hóa đơn -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnBill"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/BankingButtonStyle"
                             android:text="Hóa đơn"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
                             app:icon="@drawable/ic_bill_24"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                            />
 
-                        <!-- Nạp điện thoại -->
+                        <!-- Nạp ĐT -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPhone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/BankingButtonStyle"
                             android:text="Nạp ĐT"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
                             app:icon="@drawable/ic_mobile_2_24"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                            />
 
-                        <!-- Ví / VNPay -->
+                        <!-- Ví VNPay -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnWallet"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ví / VNPay"
-                            android:textColor="@color/black"
-                            android:backgroundTint="@color/white"
+                            style="@style/BankingButtonStyle"
+                            android:text="Ví VNPay"
                             app:icon="@drawable/ic_wallet"
                             app:iconTint="@color/black"
-                            app:iconGravity="textTop" />
+                            />
 
                         <!-- Flow sắp xếp nút -->
                         <androidx.constraintlayout.helper.widget.Flow
                             android:id="@+id/flow2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:padding="8dp"
+
                             app:constraint_referenced_ids="btnTransfer,btnDeposit,btnWithdraw,btnBill,btnPhone,btnWallet"
-                            app:flow_horizontalGap="5dp"
-                            app:flow_verticalGap="8dp"
+                            app:flow_horizontalGap="18dp"
+                            app:flow_verticalGap="10dp"
                             app:flow_wrapMode="chain"
                             app:flow_horizontalStyle="spread"
+
                             app:layout_constraintTop_toBottomOf="@id/tvGiaodich"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"/>
