@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
 import com.example.ibankingapp.ui.login.RegisterActivity;
+import com.example.ibankingapp.ui.maps.MapsActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
 import com.example.ibankingapp.ui.transfer.TransferActivity;
 import com.example.ibankingapp.ui.transfer.transaction.HistoryTransactionActivity;
@@ -22,7 +23,7 @@ public class HomeActivity extends AppCompatActivity {
         homeBinding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(homeBinding.getRoot());
 
-        homeBinding.fabTransfer.setOnClickListener(v->{
+        homeBinding.fabTransfers .setOnClickListener(v->{
             startActivity(new Intent(this, TransferActivity.class));
         });
 
@@ -32,6 +33,11 @@ public class HomeActivity extends AppCompatActivity {
         });
         homeBinding.fabHistory.setOnClickListener(v->{
             startActivity(new Intent(this, HistoryTransactionActivity.class));
+        });
+
+        homeBinding.navMap.setOnClickListener(v->{
+            startActivity(new Intent(this, MapsActivity.class));
+
         });
     }
 }

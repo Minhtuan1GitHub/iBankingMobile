@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/edtAccountNumber"
+            android:hint="Số tài khoản"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="48dp" />
+
+        <EditText
+            android:id="@+id/edtAmount"
+            android:hint="Số tiền gửi"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="48dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Kỳ hạn (tháng):"
+            android:textSize="16sp"/>
+
+        <Spinner
+            android:id="@+id/spnTerm"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:entries="@array/saving_terms"  android:prompt="@string/select_term_prompt"
+            android:spinnerMode="dropdown"
+            />
+        <EditText
+            android:id="@+id/edtInterestRate"
+            android:hint="Lãi suất (ví dụ: 1.1)"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+
+            android:inputType="numberDecimal"
+            />
+
+        <Button
+            android:id="@+id/btnCreateSaving"
+            android:text="Tạo tài khoản tiết kiệm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            />
+
+    </LinearLayout>
+</layout>

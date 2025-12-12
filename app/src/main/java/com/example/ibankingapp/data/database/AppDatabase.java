@@ -7,15 +7,19 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.ibankingapp.data.dao.CustomerDao;
+import com.example.ibankingapp.data.dao.SavingAccountDao;
 import com.example.ibankingapp.data.dao.TransactionDao;
 import com.example.ibankingapp.entity.CustomerEntity;
+import com.example.ibankingapp.entity.SavingAccountEntity;
 import com.example.ibankingapp.entity.TransactionEntity;
 
-@Database(entities = {CustomerEntity.class, TransactionEntity.class}, version = 8)
+@Database(entities = {CustomerEntity.class, TransactionEntity.class, SavingAccountEntity.class}, version =12)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract CustomerDao customerDao();
     public abstract TransactionDao transactionDao();
+    public abstract SavingAccountDao savingAccountDao();
+
 
 
     public static synchronized AppDatabase getInstance(Context context) {

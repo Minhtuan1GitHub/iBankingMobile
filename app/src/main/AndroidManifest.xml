@@ -5,6 +5,14 @@
 
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+
 
 
     <application
@@ -16,6 +24,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IBankingApp">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAGxCGir6oJYZ7BoqdBmpYmjB0Fn4tQ8nE"/>
+
+
 
 
         <activity
@@ -76,6 +90,16 @@
         </activity>
         <activity
             android:name=".ui.transfer.transaction.TransactionDetailActivity"
+            android:exported="true"
+            >
+        </activity>
+        <activity
+            android:name=".ui.maps.MapsActivity"
+            android:exported="true"
+            >
+        </activity>
+        <activity
+            android:name=".ui.customerList.CreateSavingAccountActivity"
             android:exported="true"
             >
         </activity>

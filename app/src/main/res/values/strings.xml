@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">iBankingApp</string>
     <string name="transaction_success_title">GIAO DICH THANH CONG</string>
+    <string name="avatar_desc">GIAO DIEN NGUOI DUNG</string>
+    <string name="notify_desc">THONG BAO</string>
+    <string name="eyes_desc">MAT KHAU</string>
+    <string name="qr_desc">MA QR</string>
+    <string name="transfer_desc">CHUYEN KHOAN</string>
+    <string name="send_button_label">SAVING ACCOUNT</string>
+
+        <string-array name="saving_terms">
+            <item>3 tháng</item>
+            <item>6 tháng</item>
+            <item>12 tháng</item>
+        </string-array>
+
+        <string name="select_term_prompt">Chọn kỳ hạn</string>
+
+
 </resources>
