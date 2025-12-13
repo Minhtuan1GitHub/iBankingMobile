@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
+import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
 import com.example.ibankingapp.ui.login.RegisterActivity;
 import com.example.ibankingapp.ui.maps.MapsActivity;
 import com.example.ibankingapp.ui.notification.NotificationActivity;
@@ -16,6 +17,7 @@ import com.example.ibankingapp.ui.transfer.TransferActivity;
 import com.example.ibankingapp.ui.transfer.transaction.HistoryTransactionActivity;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModelFactory;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -32,7 +34,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(this, TransferActivity.class));
         });
 
-        homeBinding.fabSetting.setOnClickListener(v->{
+        homeBinding.navProfile.setOnClickListener(v->{
             startActivity(new Intent(this, SettingActivity.class));
 
         });
@@ -52,13 +54,17 @@ public class HomeActivity extends AppCompatActivity {
         NotificationViewModel viewModel = new ViewModelProvider(this, factory)
                 .get(NotificationViewModel.class);
 
-        viewModel.getUnreadCount().observe(this, count->{
+        viewModel.getUnreadCount(FirebaseAuth.getInstance().getCurrentUser().getUid()).observe(this, count->{
             if (count != null && count >0){
                 homeBinding.tvBadgeCount.setText(String.valueOf(count));
                 homeBinding.tvBadgeCount.setVisibility(View.VISIBLE);
             }else{
                 homeBinding.tvBadgeCount.setVisibility(View.GONE);
             }
+        });
+
+        homeBinding.btnSave.setOnClickListener(v->{
+            startActivity(new Intent(this, SavingAccountActivity.class));
         });
     }
 }

@@ -21,9 +21,9 @@ public class SavingAccountRepository {
     }
 
     public void createSavingAccount(SavingAccountEntity account){
-        String docId = db.collection("saving_accounts").document().getId();
+        //String docId = db.collection("saving_accounts").document().getId();
 
-       // String docId = account.getCustomerId();
+        String docId = account.getCustomerId();
         Map<String, Object> data = new HashMap<>();
         data.put("customer_id", account.getCustomerId());
         data.put("accountNumber", account.getAccountNumber());
@@ -54,20 +54,31 @@ public class SavingAccountRepository {
         return dao.getSavingAccountsByCustomerId(customerId);
     }
 
-    public void updateSavingAccount(SavingAccountEntity account){
+    public void updateSavingAccount(SavingAccountEntity account) {
 
-        // Update Firestore
+        Map<String, Object> data = new HashMap<>();
+        data.put("balance", account.getBalance());
+        data.put("interestRate", account.getInterestRate());
+        data.put("dueDate", account.getDueDate());
+        data.put("termMonths", account.getTermMonths());
+
+
         db.collection("savingAccounts")
-                .document(account.getCustomerId())
-                .set(account)
-                .addOnSuccessListener(aVoid -> {
-
-                    Executors.newSingleThreadExecutor().execute(() ->
-                            dao.update(account)
-                    );
-
-                });
+                .document(account.getFirebaseId())
+                .update(data)
+                .addOnSuccessListener(v ->
+                        Executors.newSingleThreadExecutor().execute(() ->
+                                dao.update(
+                                        account.getFirebaseId(),
+                                        account.getBalance(),
+                                        account.getInterestRate(),
+                                        account.getDueDate(),
+                                        account.getTermMonths()
+                                )
+                        )
+                );
     }
+
 
 
     public void syncFromFirestore(String customerId) {

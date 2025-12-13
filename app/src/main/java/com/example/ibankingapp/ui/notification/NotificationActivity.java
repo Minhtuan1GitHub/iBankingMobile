@@ -11,6 +11,7 @@ import com.example.ibankingapp.databinding.ActivityNotificationBinding;
 import com.example.ibankingapp.repository.NotificationRepository;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModelFactory;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class NotificationActivity extends AppCompatActivity {
     private ActivityNotificationBinding binding;
@@ -29,11 +30,13 @@ public class NotificationActivity extends AppCompatActivity {
         binding.recyclerNoti.setAdapter(adapter);
         binding.recyclerNoti.setLayoutManager(new LinearLayoutManager(this));
 
+        String customerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         // Dùng Factory đúng
         NotificationViewModelFactory factory = new NotificationViewModelFactory(getApplication());
         viewModel = new ViewModelProvider(this, factory).get(NotificationViewModel.class);
 
-        viewModel.getNotifications().observe(this, notifications -> {
+        viewModel.getNotifications(customerId).observe(this, notifications -> {
             adapter.setData(notifications);
         });
 

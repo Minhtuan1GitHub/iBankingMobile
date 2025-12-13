@@ -1,15 +1,17 @@
 package com.example.ibankingapp.entity;
 
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "savingAccounts")
 public class SavingAccountEntity {
 
-    @PrimaryKey(autoGenerate = true)
-    private int localId;
-
+//    @PrimaryKey(autoGenerate = true)
+//    private int localId;
+    @PrimaryKey
+    @NonNull
     private String firebaseId;
     private String customerId;
     private String accountNumber;
@@ -35,13 +37,13 @@ public class SavingAccountEntity {
 
     public SavingAccountEntity(){}
 
-    public int getLocalId() {
-        return localId;
-    }
-
-    public void setLocalId(int localId) {
-        this.localId = localId;
-    }
+//    public int getLocalId() {
+//        return localId;
+//    }
+//
+//    public void setLocalId(int localId) {
+//        this.localId = localId;
+//    }
 
     public String getFirebaseId() {
         return firebaseId;

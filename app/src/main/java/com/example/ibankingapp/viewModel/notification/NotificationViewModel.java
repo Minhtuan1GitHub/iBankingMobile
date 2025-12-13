@@ -13,11 +13,11 @@ public class NotificationViewModel extends ViewModel {
     public NotificationViewModel(NotificationRepository repo){
         this.repo = repo;
     }
-    public LiveData<List<NotificationEntity>> getNotifications(){
-        return repo.getNotifications();
+    public LiveData<List<NotificationEntity>> getNotifications(String customerId){
+        return repo.getNotifications(customerId);
     }
-    public LiveData<Integer> getUnreadCount(){
-        return repo.getUnreadCount();
+    public LiveData<Integer> getUnreadCount(String customerId){
+        return repo.getUnreadCount(customerId);
     }
     public void markAsRead(){
         repo.markAsRead();

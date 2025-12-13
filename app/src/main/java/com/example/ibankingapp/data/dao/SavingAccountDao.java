@@ -10,7 +10,7 @@ import androidx.room.Update;
 
 import com.example.ibankingapp.entity.SavingAccountEntity;
 
-import java.util.List;
+
 
 @Dao
 public interface SavingAccountDao {
@@ -24,7 +24,9 @@ public interface SavingAccountDao {
     @Query("DELETE FROM savingAccounts")
     void deleteAll();
 
-    @Update
-    void update(SavingAccountEntity savingAccount);
+//    @Update
+//    void update(SavingAccountEntity savingAccounts);
+    @Query("UPDATE savingAccounts SET balance = :balance, interestRate = :interestRate, dueDate = :dueDate , termMonths = :termMonths WHERE firebaseId = :firebaseId")
+    void update(String firebaseId, double balance, double interestRate, long dueDate , Long termMonths);
 
 }

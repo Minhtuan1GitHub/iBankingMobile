@@ -81,9 +81,15 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
                         if (savingAccount == null) {
                             // Chưa có tài khoản tiết kiệm
-                            customerDetailBinding.tbBalance1.setText("0");
-                            customerDetailBinding.edtLaiSuat.setText("0");
-                            customerDetailBinding.edtKyHan.setText("0");
+                            customerDetailBinding.tvSavingAccountHeader.setVisibility(View.GONE);
+                            customerDetailBinding.tvAccountTypeLabel1.setVisibility(View.GONE);
+                            customerDetailBinding.tvBalanceLabel1.setVisibility(View.GONE);
+                            customerDetailBinding.tvLaiSuat.setVisibility(View.GONE);
+                            customerDetailBinding.tvKyHan.setVisibility(View.GONE);
+
+                            customerDetailBinding.tbBalance1.setVisibility(View.GONE);
+                            customerDetailBinding.edtLaiSuat.setVisibility(View.GONE);
+                            customerDetailBinding.edtKyHan.setVisibility(View.GONE);
                             customerDetailBinding.createSavingAccount.setVisibility(View.VISIBLE);
                             return;
                         }
@@ -130,18 +136,16 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
         viewModelCustomerDetail.updateCustomer(currentCustomer);
 
-        if (currentSavingAccount == null) {
-            Toast.makeText(this, "Chưa load xong dữ liệu khách hàng!!", Toast.LENGTH_SHORT).show();
-            return;
+        if (currentSavingAccount != null) {
+            currentSavingAccount.setInterestRate(Double.parseDouble(customerDetailBinding.edtLaiSuat.getText().toString()));
+            Long term = Long.parseLong(customerDetailBinding.edtKyHan.getText().toString());
+            currentSavingAccount.setTermMonths(term);
+
+            viewModelSavingAccount.updateSavingAccount(currentSavingAccount);
+
         }
 
-        currentSavingAccount.setInterestRate(Double.parseDouble(customerDetailBinding.edtLaiSuat.getText().toString()));
-        //currentSavingAccount.setTermMonths(Integer.parseInt(customerDetailBinding.edtKyHan.getText().toString()));
-       // currentSavingAccount.setTermMonths(customerDetailBinding.edtKyHan.getText().toString());
-        Long term = Long.parseLong(customerDetailBinding.edtKyHan.getText().toString());
-        currentSavingAccount.setTermMonths(term);
 
-        viewModelSavingAccount.updateSavingAccount(currentSavingAccount);
 
 
         Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();

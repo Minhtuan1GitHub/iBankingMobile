@@ -15,12 +15,12 @@ public interface NotificationDao {
     @Insert
     void insert(NotificationEntity notification);
 
-    @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
-    LiveData<List<NotificationEntity>> getNotifications();
+    @Query("SELECT * FROM notifications WHERE customerId = :customerId ORDER BY timestamp DESC")
+    LiveData<List<NotificationEntity>> getNotifications(String customerId);
 
-    @Query("SELECT COUNT(*) FROM notifications  WHERE  isRead = 0")
-    LiveData<Integer> getUnreadNotificationsCount( );
+    @Query("SELECT COUNT(*) FROM notifications  WHERE customerId = :customerId AND  isRead = 0")
+    LiveData<Integer> getUnreadNotificationsCount(String customerId);
 
-    @Query("UPDATE notifications SET isRead = 1 ")
+    @Query("UPDATE notifications SET isRead = 1  ")
     void markNotificationsAsRead();
 }

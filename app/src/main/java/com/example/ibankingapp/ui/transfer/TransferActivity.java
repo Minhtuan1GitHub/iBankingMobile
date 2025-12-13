@@ -197,6 +197,7 @@ public class TransferActivity extends AppCompatActivity {
                 if (success != null && success) {
                     Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
                     NotificationEntity notification = new NotificationEntity();
+                    notification.setCustomerId(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     notification.setTitle("Chuyển tiền thành công");
                     notification.setMessage("Bạn đã chuyển " + amount + "đ đến số tài khoản " + to);
                     notification.setTimestamp(System.currentTimeMillis());

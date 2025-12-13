@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="account"
+            type="com.example.ibankingapp.entity.SavingAccountEntity"/>
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="50dp"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/tv_account_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_balance_value"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            tools:text="Tài khoản Tiết kiệm"
+
+            /> <TextView
+        android:id="@+id/tv_balance_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/design_default_color_primary"
+        android:layout_marginStart="16dp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_account_name"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="50.000.000 VNĐ"
+
+        /> <TextView
+        android:id="@+id/tv_account_number_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Số TK:"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_account_name" />
+
+        <TextView
+            android:id="@+id/tv_account_number_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/tv_account_number_label"
+            app:layout_constraintTop_toTopOf="@+id/tv_account_number_label"
+            tools:text="1000000001"
+
+            /> <TextView
+        android:id="@+id/tv_interest_rate_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Lãi suất:"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_account_number_label" />
+
+        <TextView
+            android:id="@+id/tv_interest_rate_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/design_default_color_secondary"
+            app:layout_constraintStart_toEndOf="@+id/tv_interest_rate_label"
+            app:layout_constraintTop_toTopOf="@+id/tv_interest_rate_label"
+            tools:text="5.5% / năm"
+
+            /> <TextView
+        android:id="@+id/tv_term_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Kỳ hạn:"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintEnd_toStartOf="@+id/tv_term_value"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toBottomOf="@+id/tv_account_number_label"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        tools:layout_marginStart="24dp"/>
+
+        <TextView
+            android:id="@+id/tv_term_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_term_label"
+            tools:text="12 tháng"
+
+            /> <TextView
+        android:id="@+id/tv_due_date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Đáo hạn:"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_interest_rate_label" />
+
+        <TextView
+            android:id="@+id/tv_due_date_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_due_date_label"
+            app:layout_constraintTop_toTopOf="@+id/tv_due_date_label"
+            tools:text="01/01/2026"
+
+            /> <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/tv_due_date_value" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

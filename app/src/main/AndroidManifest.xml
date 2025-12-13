@@ -109,6 +109,11 @@
             android:exported="true"
             >
         </activity>
+        <activity
+            android:name=".ui.account.saving.SavingAccountActivity"
+            android:exported="true"
+            >
+        </activity>
     </application>
 
 </manifest>

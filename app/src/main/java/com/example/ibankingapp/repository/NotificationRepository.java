@@ -18,11 +18,11 @@ public class NotificationRepository {
     public void addNotification(NotificationEntity notification){
         Executors.newSingleThreadExecutor().execute(()->dao.insert(notification));
     }
-    public LiveData<List<NotificationEntity>> getNotifications(){
-        return dao.getNotifications();
+    public LiveData<List<NotificationEntity>> getNotifications(String customerId){
+        return dao.getNotifications(customerId);
     }
-    public LiveData<Integer> getUnreadCount(){
-        return dao.getUnreadNotificationsCount();
+    public LiveData<Integer> getUnreadCount(String customerId){
+        return dao.getUnreadNotificationsCount(customerId);
     }
     public void markAsRead(){
         Executors.newSingleThreadExecutor().execute(dao::markNotificationsAsRead);
