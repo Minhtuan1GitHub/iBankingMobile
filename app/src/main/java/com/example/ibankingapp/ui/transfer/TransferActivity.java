@@ -1,5 +1,7 @@
 package com.example.ibankingapp.ui.transfer;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,10 +12,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityTransferBinding;
+import com.example.ibankingapp.entity.NotificationEntity;
 import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.NotificationRepository;
 import com.example.ibankingapp.ui.home.HomeActivity;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -190,6 +196,20 @@ public class TransferActivity extends AppCompatActivity {
         viewModel.transfer(from, to, amount).observe(this, success -> {
                 if (success != null && success) {
                     Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+                    NotificationEntity notification = new NotificationEntity();
+                    notification.setCustomerId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    notification.setTitle("Chuyển tiền thành công");
+                    notification.setMessage("Bạn đã chuyển " + amount + "đ đến số tài khoản " + to);
+                    notification.setTimestamp(System.currentTimeMillis());
+                    notification.setRead(false); // chưa đọc
+
+                    // Lưu vào Room
+                    NotificationRepository repo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
+                    repo.addNotification(notification);
+
+                    // Hiển thị Notification Android
+                    sendNotification(notification.getTitle(), notification.getMessage());
+
 
                     //startActivity(new Intent(this, SuccessfullTransferActivity.class));
                     Intent intent = new Intent(this, SuccessfullTransferActivity.class);
@@ -204,6 +224,28 @@ public class TransferActivity extends AppCompatActivity {
                     Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+
+    private void sendNotification(String title, String message){
+        String chanelId = "transfer_chanel";
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(
+                    chanelId, "Chuyển tiền",
+                    NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
+
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, chanelId)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(true);
+
+        manager.notify(1, builder.build());
+
+
     }
 
 }

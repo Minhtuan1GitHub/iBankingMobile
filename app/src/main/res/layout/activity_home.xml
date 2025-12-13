@@ -49,6 +49,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
+                            android:contentDescription="@string/avatar_desc"
                             app:layout_constraintVertical_bias="0.5" />
 
                         <TextView
@@ -83,14 +84,31 @@
                             android:minHeight="0dp"
 
                             app:cornerRadius="30dp"
+                            android:contentDescription="@string/notify_desc"
 
                             app:icon="@drawable/ic_notify_2"
                             app:iconGravity="textTop"
                             app:iconSize="40dp"
                             app:iconTint="#00A2E8"
 
+
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tvBadgeCount"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/badge_background"
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp"
+                            android:gravity="center"
+
+                            android:text="9+"
+
+                            app:layout_constraintEnd_toEndOf="@id/btnNotify"
+                            app:layout_constraintTop_toTopOf="@id/btnNotify"
+                         />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -136,9 +154,9 @@
 
 
                         <ImageButton
-                            android:id="@+id/ic_visibility"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:id="@+id/imgEyes"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:layout_marginTop="36dp"
                             android:background="@null"
 
@@ -147,6 +165,7 @@
                             app:layout_constraintHorizontal_bias="0.0"
 
                             app:layout_constraintStart_toEndOf="@id/tvBalance"
+                            android:contentDescription="@string/eyes_desc"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ImageButton
@@ -161,6 +180,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
+                            android:contentDescription="@string/qr_desc"
                             app:layout_constraintVertical_bias="0.1" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -514,6 +534,7 @@
                 app:borderWidth="0dp"
                 app:elevation="6dp"
                 app:layout_anchor="@id/bottomAppBar"
+                android:contentDescription="@string/transfer_desc"
                 app:tint="#FFF" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

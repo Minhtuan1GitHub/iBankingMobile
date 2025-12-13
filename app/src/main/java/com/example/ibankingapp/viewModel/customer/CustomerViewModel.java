@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.repository.CustomerRepository;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -66,6 +67,23 @@ public class CustomerViewModel extends AndroidViewModel {
             }
             result.postValue(success);
         });
+        return result;
+    }
+
+    public LiveData<Boolean> hasSavingAccount(String customerId){
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("savingAccounts")
+                .whereEqualTo("customer_id", customerId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        result.postValue(!task.getResult().isEmpty());
+                    } else {
+                        result.postValue(false);
+                    }
+                });
         return result;
     }
 }
