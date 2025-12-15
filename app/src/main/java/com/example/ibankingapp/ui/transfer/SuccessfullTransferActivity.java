@@ -18,6 +18,7 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         binding = ActivitySuccessfullTransferBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        String tile = getIntent().getStringExtra("title");
         String from = getIntent().getStringExtra("from");
         String to = getIntent().getStringExtra("to");
         double amount = getIntent().getDoubleExtra("amount", 0.0);
@@ -32,6 +33,7 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         //format thoi gian
         String formattedTime = android.text.format.DateFormat.format("dd/MM/yyyy HH:mm:ss", time).toString();
 
+        binding.tvSuccessTitle.setText(tile);
         binding.tvAmountValue.setText(formattedAmount);
         binding.tvRecipientNameValue.setText(name);
         binding.tvRecipientAccountValue.setText(to);

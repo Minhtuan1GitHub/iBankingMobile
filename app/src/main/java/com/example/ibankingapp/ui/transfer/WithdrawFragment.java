@@ -37,7 +37,7 @@ public class WithdrawFragment extends Fragment {
             intent.putExtra("amount", amount);
             intent.putExtra("transactionType", "WITHDRAW");
             intent.putExtra("recipientName", "Rút tiền từ tài khoản");
-            intent.putExtra("recipientAccount", "Tài khoản của bạn");
+            intent.putExtra("recipientAccount", "iBanking App");
             startActivity(intent);
         });
 

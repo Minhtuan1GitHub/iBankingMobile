@@ -37,7 +37,7 @@ public class DepositFragment extends Fragment {
             intent.putExtra("amount", amount);
             intent.putExtra("transactionType", "DEPOSIT");
             intent.putExtra("recipientName", "Nạp tiền vào tài khoản");
-            intent.putExtra("recipientAccount", "Tài khoản của bạn");
+            intent.putExtra("recipientAccount", "Zalo Pay");
             startActivity(intent);
         });
 

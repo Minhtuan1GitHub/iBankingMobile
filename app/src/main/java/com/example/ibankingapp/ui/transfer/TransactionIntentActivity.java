@@ -57,19 +57,31 @@ public class TransactionIntentActivity extends AppCompatActivity {
                         @Override
                         public void onPaymentSucceeded(String transactionId, String transToken, String appTransID) {
                             Log.d("ZaloPay", "Payment succeeded. Transaction ID: " + transactionId);
-                            // Handle success (e.g., show a success message, update UI, etc.)
+                            Intent successIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
+                            successIntent.putExtra("title", "Thanh toán thành công");
+                            successIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
+
+                            startActivity(successIntent);
                         }
 
                         @Override
                         public void onPaymentCanceled(String zpTransToken, String appTransID) {
                             Log.d("ZaloPay", "Payment canceled. App Transaction ID: " + appTransID);
-                            // Handle cancellation (e.g., show a cancellation message, update UI, etc.)
+                            Intent cancelIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
+                            cancelIntent.putExtra("title", "Thanh toán thất bại");
+                            cancelIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
+                            startActivity(cancelIntent);
+
                         }
 
                         @Override
                         public void onPaymentError(vn.zalopay.sdk.ZaloPayError zaloPayError, String zpTransToken, String appTransID) {
                             Log.d("ZaloPay", "Payment error. Error: " + zaloPayError.toString() + ", zpTransToken: " + zpTransToken + ", App Transaction ID: " + appTransID);
-                            // Handle error (e.g., show an error message, update UI, etc.)
+                            Intent errorIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
+                            errorIntent.putExtra("title", "Thanh toán thất bại");
+                            errorIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
+                            startActivity(errorIntent);
+
                         }
                     });
                 } else {
