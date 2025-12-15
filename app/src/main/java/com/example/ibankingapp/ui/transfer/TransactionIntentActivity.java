@@ -37,7 +37,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
 
-        binding.tvAmountLabel.setText(intent.getStringExtra("amount") + " VND");
+        binding.tvAmountValue.setText(intent.getStringExtra("amount") + " VND");
         binding.tvRecipientNameValue.setText(intent.getStringExtra("recipientName"));
         binding.tvRecipientAccountValue.setText(intent.getStringExtra("recipientAccount"));
 
@@ -46,8 +46,9 @@ public class TransactionIntentActivity extends AppCompatActivity {
             CreateOrder orderApi = new CreateOrder();
 
             try {
-                JSONObject data = orderApi.createOrder(binding.tvAmountValue.getText().toString());
-                Log.d("Amount", binding.tvAmountValue.getText().toString());
+                String amountText = binding.tvAmountValue.getText().toString().replace(" VND", "").trim();
+                JSONObject data = orderApi.createOrder(amountText);
+                Log.d("Amount", amountText);
                 String code = data.getString("returncode");
 
                 if (code.equals("1")) {
