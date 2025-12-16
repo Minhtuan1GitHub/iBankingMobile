@@ -15,6 +15,7 @@ import com.example.ibankingapp.ui.notification.NotificationActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
 import com.example.ibankingapp.ui.transfer.DepositWithdrawActivity;
 import com.example.ibankingapp.ui.transfer.TransferActivity;
+import com.example.ibankingapp.ui.transfer.transaction.BillPaymentActivity;
 import com.example.ibankingapp.ui.transfer.transaction.HistoryTransactionActivity;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModelFactory;
@@ -78,6 +79,10 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.btnSave.setOnClickListener(v->{
             startActivity(new Intent(this, SavingAccountActivity.class));
+        });
+
+        homeBinding.btnBill.setOnClickListener(v->{
+            startActivity(new Intent(this, BillPaymentActivity.class));
         });
     }
 }

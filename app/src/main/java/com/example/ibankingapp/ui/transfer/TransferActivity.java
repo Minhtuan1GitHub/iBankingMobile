@@ -21,6 +21,7 @@ import com.example.ibankingapp.entity.NotificationEntity;
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.repository.NotificationRepository;
 import com.example.ibankingapp.ui.home.HomeActivity;
+import com.example.ibankingapp.utils.NotificationHelper;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -158,38 +159,22 @@ public class TransferActivity extends AppCompatActivity {
         builder.setView(input);
 
         builder.setPositiveButton("OK", (dialog, which) -> {
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             String otp = input.getText().toString().trim();
-            verifyOtpAndTransfer(from, to, amount, otp);
+
+            viewModel.verifyPin(uid, otp)
+                    .observe(this, success -> {
+                        if (Boolean.TRUE.equals(success)) {
+                            executeTransfer(from, to, amount);
+                        } else {
+                            Toast.makeText(this, "OTP không đúng", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
         });
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
 
         builder.show();
-    }
-
-    private void verifyOtpAndTransfer(String from, String to, double amount, String otp) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        db.collection("customers")
-                .document(uid)
-                .get()
-                .addOnSuccessListener(doc->{
-                    if (doc.exists()){
-                        String otpValue = doc.getString("otp");
-                        if (otp.equals(otpValue)){
-                            executeTransfer(from, to, amount);
-                        }else{
-                            Toast.makeText(this, "Mã OTP không đúng", Toast.LENGTH_SHORT).show();
-                        }
-                    }else{
-                        Toast.makeText(this, "Không tìm thấy tài khoản", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e->{
-                    Toast.makeText(this, "Lỗi load tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                });
     }
 
     private void executeTransfer(String from, String to, double amount) {
@@ -208,7 +193,10 @@ public class TransferActivity extends AppCompatActivity {
                     repo.addNotification(notification);
 
                     // Hiển thị Notification Android
-                    sendNotification(notification.getTitle(), notification.getMessage());
+                    NotificationHelper.send(
+                            this,
+                            notification.getTitle(),
+                            notification.getMessage());
 
 
                     //startActivity(new Intent(this, SuccessfullTransferActivity.class));
@@ -226,26 +214,5 @@ public class TransferActivity extends AppCompatActivity {
             });
     }
 
-    private void sendNotification(String title, String message){
-        String chanelId = "transfer_chanel";
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
-            NotificationChannel channel = new NotificationChannel(
-                    chanelId, "Chuyển tiền",
-                    NotificationManager.IMPORTANCE_HIGH);
-            manager.createNotificationChannel(channel);
-
-        }
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, chanelId)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setAutoCancel(true);
-
-        manager.notify(1, builder.build());
-
-
-    }
 
 }

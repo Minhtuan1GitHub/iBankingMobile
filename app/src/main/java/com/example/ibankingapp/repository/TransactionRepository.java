@@ -20,7 +20,14 @@ public class TransactionRepository {
         this.transactionDao = dao;
     }
 
-    public void logTransaction(String from, String to, double amount, String status){
+    public void logTransaction(
+            String from,
+            String to,
+            double amount,
+            String status,
+            String type,
+            String note
+    ){
         Executors.newSingleThreadExecutor().execute(()->{
             String id = UUID.randomUUID().toString();
 
@@ -31,6 +38,9 @@ public class TransactionRepository {
             log.setAmount(amount);
             log.setTimestamp(System.currentTimeMillis());
             log.setStatus(status);
+            log.setType(type);
+            log.setNote(note);
+
 
             //room
             transactionDao.insert(log);
@@ -54,5 +64,6 @@ public class TransactionRepository {
     public interface OnTransactionsLoaded {
         void onLoaded(List<TransactionEntity> transactions);
     }
+
 
 }

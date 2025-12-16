@@ -10,6 +10,11 @@ public class Customer {
     private String role;
     private String otp;
 
+    public Customer() {
+    }
+
+
+
     public void setId(String id) {
         this.id = id;
     }

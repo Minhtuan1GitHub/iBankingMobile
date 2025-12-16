@@ -35,8 +35,8 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
 
         binding.tvSuccessTitle.setText(tile);
         binding.tvAmountValue.setText(formattedAmount);
-        binding.tvRecipientNameValue.setText(name);
-        binding.tvRecipientAccountValue.setText(to);
+        binding.tvRecipientNameValue.setText(to);
+        binding.tvRecipientAccountValue.setText(from);
         binding.tvTimeValue.setText(formattedTime);
 
         binding.btnBackToHome.setOnClickListener(v -> finish());

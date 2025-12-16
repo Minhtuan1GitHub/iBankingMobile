@@ -48,12 +48,6 @@ public interface CustomerDao {
         updateCustomer(sender);
         updateCustomer(receiver);
 
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        db.collection("customers").document(sender.getId()).set(sender);
-//        db.collection("customers").document(receiver.getId()).set(receiver);
-
-
-
 
         return true;
     }

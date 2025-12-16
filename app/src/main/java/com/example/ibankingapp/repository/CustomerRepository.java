@@ -9,8 +9,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.entity.CustomerEntity;
+import com.example.ibankingapp.entity.TransactionEntity;
 import com.example.ibankingapp.model.Customer;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -193,7 +195,7 @@ public class CustomerRepository {
 
         boolean success = customerDao.transfer(from, to, amount);
         if (!success){
-            transactionRepository.logTransaction(from, to, amount, "fail");
+            transactionRepository.logTransaction(from, to, amount, "fail", "transfer", "Không đủ số dư");
             return false;
         }
 
@@ -203,7 +205,7 @@ public class CustomerRepository {
         firestore.collection("customers").document(sender.getId()).set(sender);
         firestore.collection("customers").document(receiver.getId()).set(receiver);
 
-        transactionRepository.logTransaction(from, to, amount, "success");
+        transactionRepository.logTransaction(from, to, amount, "success", "transfer", "Chuyển khoản thành công");
 
 
 
@@ -212,5 +214,94 @@ public class CustomerRepository {
     public CustomerEntity getCustomerByAccount(String accountNumber) {
         return customerDao.getCustomerByAccount(accountNumber);
     }
+
+    public LiveData<Customer> getCustomerByUid(String uid) {
+        MutableLiveData<Customer> data = new MutableLiveData<>();
+
+        firestore.collection("customers")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        data.setValue(doc.toObject(Customer.class));
+                    }
+                });
+
+        return data;
+    }
+
+    public void deposit(String uid, double amount){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference customerRef = db.collection("customers").document(uid);
+        DocumentReference savingRef = db.collection("savingAccounts").document(uid);
+
+        db.runTransaction(transaction->{
+            DocumentSnapshot customerSnapshot = transaction.get(customerRef);
+            DocumentSnapshot savingSnapshot = transaction.get(savingRef);
+            double walletBalance = customerSnapshot.getDouble("balance");
+            double savingBalance = savingSnapshot.getDouble("balance");
+            if (walletBalance < amount){
+                throw new RuntimeException("Không đủ số dư");
+            }
+            transaction.update(customerRef, "balance", walletBalance - amount);
+            transaction.update(savingRef, "balance", savingBalance + amount);
+
+            transaction.set(
+                    db.collection("transactions").document(), new TransactionEntity()
+            );
+            return null;
+
+        });
+
+    }
+
+    public void withdraw(String uid, double amoumt){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference customerRef = db.collection("customers").document(uid);
+        DocumentReference savingRef = db.collection("savingAccounts").document(uid);
+
+        db.runTransaction(transaction->{
+            DocumentSnapshot customerSnapshot = transaction.get(customerRef);
+            DocumentSnapshot savingSnapshot = transaction.get(savingRef);
+
+            double walletBalance = customerSnapshot.getDouble("balance");
+            double savingBalance = savingSnapshot.getDouble("balance");
+
+            if (savingBalance < amoumt) {
+                throw new RuntimeException("Không đủ số dư");
+            }
+            transaction.update(customerRef, "balance", walletBalance + amoumt);
+            transaction.update(savingRef, "balance", savingBalance - amoumt);
+
+
+
+
+            transaction.set(
+                    db.collection("transactions").document(), new TransactionEntity()
+            );
+            return null;
+
+
+        });
+    }
+
+    public LiveData<Boolean> verifyPin(String uid, String pin){
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        firestore.collection("customers")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()){
+                        result.setValue(false);
+                        return;
+                    }
+                    String pinValue = doc.getString("otp");
+                    result.setValue(pin.equals(pinValue));
+                })
+                .addOnFailureListener(e -> result.setValue(false));
+        return result;
+    }
+
+
 
 }
