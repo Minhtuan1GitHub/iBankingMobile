@@ -29,7 +29,7 @@ public class DepositFragment extends Fragment {
             String amount = binding.edtMoney.getText().toString().trim();
 
             if (amount.isEmpty() || Integer.parseInt(amount) < 10000) {
-                Toast.makeText(getContext(), "Vui lòng nhập số tiền tối thiểu là 10.000 VND", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng nhập số tiền tối thiểu là 10000 đ", Toast.LENGTH_SHORT).show();
                 return;
             }
 
