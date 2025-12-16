@@ -3,19 +3,12 @@ package com.example.ibankingapp.ui.transfer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.util.Log;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.ibankingapp.Api.CreateOrder;
 import com.example.ibankingapp.databinding.ActivityTransactionIntentBinding;
 
-import org.json.JSONObject;
-
-import vn.zalopay.sdk.Environment;
-import vn.zalopay.sdk.ZaloPaySDK;
-import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class TransactionIntentActivity extends AppCompatActivity {
     private ActivityTransactionIntentBinding binding;
@@ -28,12 +21,6 @@ public class TransactionIntentActivity extends AppCompatActivity {
         binding = ActivityTransactionIntentBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        StrictMode.ThreadPolicy policy = new
-                StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        // ZaloPay SDK Init
-        ZaloPaySDK.init(553, Environment.SANDBOX);
 
         Intent intent = getIntent();
 
@@ -41,61 +28,5 @@ public class TransactionIntentActivity extends AppCompatActivity {
         binding.tvRecipientNameValue.setText(intent.getStringExtra("recipientName"));
         binding.tvRecipientAccountValue.setText(intent.getStringExtra("recipientAccount"));
 
-        // handle CreateOrder
-        binding.btnPay.setOnClickListener(v -> {
-            CreateOrder orderApi = new CreateOrder();
-
-            try {
-                String amountText = binding.tvAmountValue.getText().toString().replace(" VND", "").trim();
-                JSONObject data = orderApi.createOrder(amountText);
-                Log.d("Amount", amountText);
-                String code = data.getString("returncode");
-
-                if (code.equals("1")) {
-                    String token = data.getString("zptranstoken");
-                    ZaloPaySDK.getInstance().payOrder(TransactionIntentActivity.this, token, "demozpdk://app", new PayOrderListener() {
-                        @Override
-                        public void onPaymentSucceeded(String transactionId, String transToken, String appTransID) {
-                            Log.d("ZaloPay", "Payment succeeded. Transaction ID: " + transactionId);
-                            Intent successIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
-                            successIntent.putExtra("title", "Thanh toán thành công");
-                            successIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
-
-                            startActivity(successIntent);
-                        }
-
-                        @Override
-                        public void onPaymentCanceled(String zpTransToken, String appTransID) {
-                            Log.d("ZaloPay", "Payment canceled. App Transaction ID: " + appTransID);
-                            Intent cancelIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
-                            cancelIntent.putExtra("title", "Thanh toán thất bại");
-                            cancelIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
-                            startActivity(cancelIntent);
-
-                        }
-
-                        @Override
-                        public void onPaymentError(vn.zalopay.sdk.ZaloPayError zaloPayError, String zpTransToken, String appTransID) {
-                            Log.d("ZaloPay", "Payment error. Error: " + zaloPayError.toString() + ", zpTransToken: " + zpTransToken + ", App Transaction ID: " + appTransID);
-                            Intent errorIntent = new Intent(TransactionIntentActivity.this, SuccessfullTransferActivity.class);
-                            errorIntent.putExtra("title", "Thanh toán thất bại");
-                            errorIntent.putExtra("amount", binding.tvAmountValue.getText().toString());
-                            startActivity(errorIntent);
-
-                        }
-                    });
-                } else {
-                    Log.e("CreateOrder", "Failed to create order. Return code: " + code);
-                }
-
-            } catch (Exception e) {
-                Log.e("TransactionIntent", "Error creating order", e);
-            }
-        });
-    }
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        ZaloPaySDK.getInstance().onResult(intent);
     }
 }
