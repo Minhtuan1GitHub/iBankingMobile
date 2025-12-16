@@ -86,4 +86,17 @@ public class CustomerViewModel extends AndroidViewModel {
                 });
         return result;
     }
+    public LiveData<Customer> getCustomer(String uid) {
+        return repository.getCustomerByUid(uid);
+    }
+    public void deposit(String uid, double amount){
+        repository.deposit(uid, amount);
+    }
+    public void withdraw(String uid, double amount){
+        repository.withdraw(uid, amount);
+    }
+    public LiveData<Boolean> verifyPin(String uid, String pin){
+        return repository.verifyPin(uid, pin);
+    }
+
 }

@@ -114,6 +114,11 @@
             android:exported="true"
             >
         </activity>
+        <activity
+            android:name=".ui.transfer.transaction.BillPaymentActivity"
+            android:exported="true"
+            >
+        </activity>
     </application>
 
 </manifest>

@@ -33,8 +33,8 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         String formattedTime = android.text.format.DateFormat.format("dd/MM/yyyy HH:mm:ss", time).toString();
 
         binding.tvAmountValue.setText(formattedAmount);
-        binding.tvRecipientNameValue.setText(name);
-        binding.tvRecipientAccountValue.setText(to);
+        binding.tvRecipientNameValue.setText(to);
+        binding.tvRecipientAccountValue.setText(from);
         binding.tvTimeValue.setText(formattedTime);
 
         binding.btnBackToHome.setOnClickListener(v -> finish());

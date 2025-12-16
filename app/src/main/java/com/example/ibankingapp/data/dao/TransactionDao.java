@@ -15,7 +15,13 @@ public interface TransactionDao {
     void insert(TransactionEntity transaction);
 
     // all transaction of current user
-    @Query("SELECT * FROM transactions_db WHERE fromAcountNumber = :accountNumber OR toAcountNumber = :accountNumber ORDER BY timestamp DESC")
+    @Query("" +
+            "SELECT * " +
+            "FROM transactions_db " +
+            "WHERE fromAcountNumber = :accountNumber " +
+            "OR toAcountNumber = :accountNumber " +
+            "ORDER BY timestamp " +
+            "DESC")
     List<TransactionEntity> getAllTransactions(String accountNumber);
 
 

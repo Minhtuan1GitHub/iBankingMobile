@@ -19,7 +19,7 @@ import com.example.ibankingapp.entity.TransactionEntity;
         TransactionEntity.class,
         SavingAccountEntity.class,
         NotificationEntity.class},
-        version =16)
+        version =18)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
     public abstract CustomerDao customerDao();
