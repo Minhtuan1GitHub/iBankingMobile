@@ -1,10 +1,12 @@
 package com.example.ibankingapp.ui.transfer;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ibankingapp.databinding.ActivitySuccessfullTransferBinding;
+import com.example.ibankingapp.ui.home.HomeActivity;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -64,7 +66,7 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
             binding.tvDescValue.setText("Không có nội dung");
         }
 
-        binding.btnBackToHome.setOnClickListener(v -> finish());
+        binding.btnBackToHome.setOnClickListener(v -> startActivity(new Intent(this, HomeActivity.class)));
 
     }
 }

@@ -4,13 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ibankingapp.Api.CreateOrder; // Import class vừa tạo
 import com.example.ibankingapp.databinding.ActivityTransactionIntentBinding;
-import com.example.ibankingapp.ui.transfer.SuccessfullTransferActivity;
 
 public class TransactionIntentActivity extends AppCompatActivity {
     private ActivityTransactionIntentBinding binding;
@@ -27,11 +25,15 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         // 1. Lấy dữ liệu từ Intent gửi sang
         Intent intent = getIntent();
-        String amountStr = intent.getStringExtra("amount").replace("VND", "").replace(" ", ""); // Chuỗi số tiền
+        String amountStr = intent.getStringExtra("amount");
+        if (amountStr != null) {
+            amountStr = amountStr.replace("VND", "").replace(" ", "");
+        } else {
+            amountStr = "0";
+        }
         transactionType = intent.getStringExtra("transactionType"); // Nhận loại giao dịch
 
         // Validation cơ bản
-        if(amountStr == null) amountStr = "0";
         try {
             amountDouble = Double.parseDouble(amountStr);
         } catch (NumberFormatException e) {
@@ -96,14 +98,111 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
     // --- Xử lý nội bộ (Rút tiền) ---
     private void processInternalTransaction() {
-        // TODO: Gọi API trừ tiền trong DB tại đây
-        // Giả lập thành công:
-        navigateToSuccess();
+        // Lấy thông tin người dùng hiện tại
+        com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = currentUser.getUid();
+
+        // Vô hiệu hóa nút để tránh click nhiều lần
+        binding.btnPay.setEnabled(false);
+
+        // Lấy thông tin tài khoản từ Firestore
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        db.collection("customers")
+            .document(uid)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (!documentSnapshot.exists()) {
+                    Toast.makeText(this, "Không tìm thấy thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                    binding.btnPay.setEnabled(true);
+                    return;
+                }
+
+                // Lấy số dư hiện tại
+                Object balanceObj = documentSnapshot.get("balance");
+                double currentBalance = 0;
+                if (balanceObj instanceof Number) {
+                    currentBalance = ((Number) balanceObj).doubleValue();
+                }
+
+                // Kiểm tra số dư
+                if (currentBalance < amountDouble) {
+                    Toast.makeText(this, "Số dư không đủ để thực hiện giao dịch", Toast.LENGTH_LONG).show();
+                    binding.btnPay.setEnabled(true);
+                    return;
+                }
+
+                // Thực hiện rút tiền
+                double newBalance = currentBalance - amountDouble;
+
+                // Cập nhật Firestore
+                db.collection("customers")
+                    .document(uid)
+                    .update("balance", newBalance)
+                    .addOnSuccessListener(aVoid -> {
+                        // Lấy thông tin tài khoản
+                        String accountNumber = documentSnapshot.getString("accountNumber");
+
+                        // Cập nhật Room database (offline support)
+                        updateLocalBalance(accountNumber, newBalance);
+
+                        // Lưu lịch sử giao dịch
+                        logWithdrawTransaction(accountNumber, amountDouble);
+
+                        // Chuyển sang màn hình thành công
+                        navigateToSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi khi thực hiện giao dịch: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        binding.btnPay.setEnabled(true);
+                    });
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Lỗi khi lấy thông tin tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                binding.btnPay.setEnabled(true);
+            });
+    }
+
+    // Cập nhật số dư trong Room database
+    private void updateLocalBalance(String accountNumber, double newBalance) {
+        new Thread(() -> {
+            com.example.ibankingapp.data.database.AppDatabase db =
+                com.example.ibankingapp.data.database.AppDatabase.getInstance(this);
+            com.example.ibankingapp.entity.CustomerEntity customer =
+                db.customerDao().getCustomerByAccountNumber(accountNumber);
+
+            if (customer != null) {
+                customer.setBalance(newBalance);
+                db.customerDao().updateCustomer(customer);
+            }
+        }).start();
+    }
+
+    // Lưu lịch sử giao dịch rút tiền
+    private void logWithdrawTransaction(String accountNumber, double amount) {
+        com.example.ibankingapp.data.database.AppDatabase db =
+            com.example.ibankingapp.data.database.AppDatabase.getInstance(this);
+        com.example.ibankingapp.repository.TransactionRepository transactionRepository =
+            new com.example.ibankingapp.repository.TransactionRepository(db.transactionDao());
+
+        transactionRepository.logTransaction(
+            accountNumber,              // from: số tài khoản người rút
+            "CASH_WITHDRAW",            // to: đích đến (rút tiền mặt)
+            amount,                     // số tiền
+            "success",                  // trạng thái
+            "withdraw",                 // loại giao dịch
+            "Rút tiền thành công"       // ghi chú
+        );
     }
 
     // --- Hứng kết quả trả về từ VNPay (Deep Link) ---
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(@androidx.annotation.NonNull Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
         handlePaymentResult(intent);
@@ -116,12 +215,87 @@ public class TransactionIntentActivity extends AppCompatActivity {
             String responseCode = data.getQueryParameter("vnp_ResponseCode");
 
             if ("00".equals(responseCode)) {
-                // Thanh toán thành công -> Chuyển sang màn hình Thành công
-                navigateToSuccess();
+                // Thanh toán thành công -> Cập nhật số dư và chuyển sang màn hình thành công
+                processDepositSuccess();
             } else {
                 Toast.makeText(this, "Giao dịch thất bại/Hủy bỏ", Toast.LENGTH_LONG).show();
             }
         }
+    }
+    
+    // Xử lý nạp tiền thành công từ VNPay
+    private void processDepositSuccess() {
+        com.google.firebase.auth.FirebaseUser currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        
+        if (currentUser == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        String uid = currentUser.getUid();
+        
+        // Lấy thông tin tài khoản từ Firestore
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        db.collection("customers")
+            .document(uid)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (!documentSnapshot.exists()) {
+                    Toast.makeText(this, "Không tìm thấy thông tin tài khoản", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                // Lấy số dư hiện tại
+                Object balanceObj = documentSnapshot.get("balance");
+                double currentBalance = 0;
+                if (balanceObj instanceof Number) {
+                    currentBalance = ((Number) balanceObj).doubleValue();
+                }
+                
+                // Cộng tiền vào tài khoản
+                double newBalance = currentBalance + amountDouble;
+                
+                // Cập nhật Firestore
+                db.collection("customers")
+                    .document(uid)
+                    .update("balance", newBalance)
+                    .addOnSuccessListener(aVoid -> {
+                        // Lấy thông tin tài khoản
+                        String accountNumber = documentSnapshot.getString("accountNumber");
+                        
+                        // Cập nhật Room database (offline support)
+                        updateLocalBalance(accountNumber, newBalance);
+                        
+                        // Lưu lịch sử giao dịch
+                        logDepositTransaction(accountNumber, amountDouble);
+                        
+                        // Chuyển sang màn hình thành công
+                        navigateToSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi khi cập nhật số dư: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(this, "Lỗi khi lấy thông tin tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
+    }
+    
+    // Lưu lịch sử giao dịch nạp tiền
+    private void logDepositTransaction(String accountNumber, double amount) {
+        com.example.ibankingapp.data.database.AppDatabase db =
+            com.example.ibankingapp.data.database.AppDatabase.getInstance(this);
+        com.example.ibankingapp.repository.TransactionRepository transactionRepository =
+            new com.example.ibankingapp.repository.TransactionRepository(db.transactionDao());
+        
+        transactionRepository.logTransaction(
+            "VNPAY",                    // from: nguồn nạp tiền
+            accountNumber,              // to: số tài khoản nhận
+            amount,                     // số tiền
+            "success",                  // trạng thái
+            "deposit",                  // loại giao dịch
+            "Nạp tiền qua VNPay thành công"  // ghi chú
+        );
     }
 
     private void navigateToSuccess() {
@@ -136,7 +310,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
         successIntent.putExtra("transactionType", transactionType);
 
         // Thêm nội dung giao dịch dựa trên loại
-        String description = "";
+        String description;
         if ("DEPOSIT".equals(transactionType)) {
             description = "Nạp tiền vào tài khoản qua VNPay";
         } else if ("WITHDRAW".equals(transactionType)) {
