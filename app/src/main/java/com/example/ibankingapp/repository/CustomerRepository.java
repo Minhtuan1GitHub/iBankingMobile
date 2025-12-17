@@ -302,6 +302,132 @@ public class CustomerRepository {
         return result;
     }
 
+    // --------------------------------------------------------
+    // WALLET DEPOSIT (Nạp tiền vào ví chính qua VNPay)
+    // --------------------------------------------------------
+    public void walletDeposit(String uid, double amount, OnTransactionComplete callback) {
+        executor.execute(() -> {
+            firestore.collection("customers")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        callback.onFailure("Không tìm thấy thông tin tài khoản");
+                        return;
+                    }
 
+                    // Lấy số dư hiện tại
+                    Object balanceObj = documentSnapshot.get("balance");
+                    double currentBalance = 0;
+                    if (balanceObj instanceof Number) {
+                        currentBalance = ((Number) balanceObj).doubleValue();
+                    }
+
+                    // Cộng tiền vào tài khoản
+                    double newBalance = currentBalance + amount;
+                    String accountNumber = documentSnapshot.getString("accountNumber");
+
+                    // Cập nhật Firestore
+                    firestore.collection("customers")
+                        .document(uid)
+                        .update("balance", newBalance)
+                        .addOnSuccessListener(aVoid -> {
+                            // Cập nhật Room database
+                            executor.execute(() -> {
+                                CustomerEntity customer = customerDao.getCustomerByAccountNumber(accountNumber);
+                                if (customer != null) {
+                                    customer.setBalance(newBalance);
+                                    customerDao.updateCustomer(customer);
+                                }
+                            });
+
+                            // Lưu lịch sử giao dịch
+                            transactionRepository.logTransaction(
+                                "VNPAY",
+                                accountNumber,
+                                amount,
+                                "success",
+                                "deposit",
+                                "Nạp tiền qua VNPay thành công"
+                            );
+
+                            callback.onSuccess(accountNumber, newBalance);
+                        })
+                        .addOnFailureListener(e -> callback.onFailure("Lỗi khi cập nhật số dư: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onFailure("Lỗi khi lấy thông tin tài khoản: " + e.getMessage()));
+        });
+    }
+
+    // --------------------------------------------------------
+    // WALLET WITHDRAW (Rút tiền từ ví chính)
+    // --------------------------------------------------------
+    public void walletWithdraw(String uid, double amount, OnTransactionComplete callback) {
+        executor.execute(() -> {
+            firestore.collection("customers")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) {
+                        callback.onFailure("Không tìm thấy thông tin tài khoản");
+                        return;
+                    }
+
+                    // Lấy số dư hiện tại
+                    Object balanceObj = documentSnapshot.get("balance");
+                    double currentBalance = 0;
+                    if (balanceObj instanceof Number) {
+                        currentBalance = ((Number) balanceObj).doubleValue();
+                    }
+
+                    // Kiểm tra số dư
+                    if (currentBalance < amount) {
+                        callback.onFailure("Số dư không đủ để thực hiện giao dịch");
+                        return;
+                    }
+
+                    // Trừ tiền từ tài khoản
+                    double newBalance = currentBalance - amount;
+                    String accountNumber = documentSnapshot.getString("accountNumber");
+
+                    // Cập nhật Firestore
+                    firestore.collection("customers")
+                        .document(uid)
+                        .update("balance", newBalance)
+                        .addOnSuccessListener(aVoid -> {
+                            // Cập nhật Room database
+                            executor.execute(() -> {
+                                CustomerEntity customer = customerDao.getCustomerByAccountNumber(accountNumber);
+                                if (customer != null) {
+                                    customer.setBalance(newBalance);
+                                    customerDao.updateCustomer(customer);
+                                }
+                            });
+
+                            // Lưu lịch sử giao dịch
+                            transactionRepository.logTransaction(
+                                accountNumber,
+                                "CASH_WITHDRAW",
+                                amount,
+                                "success",
+                                "withdraw",
+                                "Rút tiền thành công"
+                            );
+
+                            callback.onSuccess(accountNumber, newBalance);
+                        })
+                        .addOnFailureListener(e -> callback.onFailure("Lỗi khi thực hiện giao dịch: " + e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onFailure("Lỗi khi lấy thông tin tài khoản: " + e.getMessage()));
+        });
+    }
+
+    // --------------------------------------------------------
+    // CALLBACK INTERFACE
+    // --------------------------------------------------------
+    public interface OnTransactionComplete {
+        void onSuccess(String accountNumber, double newBalance);
+        void onFailure(String errorMessage);
+    }
 
 }
