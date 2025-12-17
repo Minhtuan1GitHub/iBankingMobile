@@ -119,6 +119,11 @@
             android:exported="true"
             >
         </activity>
+        <activity
+            android:name=".ui.keyc.EkycActivity"
+            android:exported="true"
+            >
+        </activity>
     </application>
 
 </manifest>

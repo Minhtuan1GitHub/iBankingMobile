@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.ibankingapp.databinding.ActivityLoginBinding;
 import com.example.ibankingapp.ui.admin.AdminActivity;
 import com.example.ibankingapp.ui.home.HomeActivity;
+import com.example.ibankingapp.utils.BillSeeder;
 import com.example.ibankingapp.viewModel.login.FirebaseAuthManager;
 import com.example.ibankingapp.viewModel.login.LoginViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,9 +27,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        BillSeeder.seedBill();
         loginBinding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(loginBinding.getRoot());
         viewModelLogin = new ViewModelProvider(this).get(LoginViewModel.class);
@@ -46,8 +49,6 @@ public class LoginActivity extends AppCompatActivity {
         viewModelLogin.getLoginResult().observe(this, success->{
             if (success){
 //                startActivity(new Intent(this, AdminActivity.class));
-
-
                 // check role
                 String uid = auth.getCurrentUser().getUid();
                 db.collection("customers").document(uid).get()

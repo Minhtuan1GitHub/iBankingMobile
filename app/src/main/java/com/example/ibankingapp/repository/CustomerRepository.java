@@ -246,13 +246,19 @@ public class CustomerRepository {
             transaction.update(customerRef, "balance", walletBalance - amount);
             transaction.update(savingRef, "balance", savingBalance + amount);
 
-            transaction.set(
-                    db.collection("transactions").document(), new TransactionEntity()
+            return customerSnapshot.getString("accountNumber");
+        }).addOnSuccessListener(accountNumber ->{
+            transactionRepository.logTransaction(
+                    accountNumber,
+                    "Tài khoản tiết kiệm",
+                    amount,
+                    "success",
+                    "deposit",
+                    "Nạp tiền tiết kiệm"
             );
-            return null;
-
+        }).addOnFailureListener(e->{
+            Log.e("CustomerRepository", "Deposit failed", e);
         });
-
     }
 
     public void withdraw(String uid, double amoumt){
@@ -276,12 +282,18 @@ public class CustomerRepository {
 
 
 
-            transaction.set(
-                    db.collection("transactions").document(), new TransactionEntity()
+            return customerSnapshot.getString("accountNumber");
+        }).addOnSuccessListener(accountNumber ->{
+            transactionRepository.logTransaction(
+                    "Tài khoản tiết kiệm",
+                    accountNumber,
+                    amoumt,
+                    "success",
+                    "withdraw",
+                    "Rút tiền tiết kiệm"
             );
-            return null;
-
-
+        }).addOnFailureListener(e->{
+            Log.e("CustomerRepository", "Deposit failed", e);
         });
     }
 
@@ -299,6 +311,24 @@ public class CustomerRepository {
                     result.setValue(pin.equals(pinValue));
                 })
                 .addOnFailureListener(e -> result.setValue(false));
+        return result;
+    }
+
+    public LiveData<String> getImage(String uid){
+        MutableLiveData<String> result = new MutableLiveData<>();
+
+        firestore.collection("ekyc")
+                .document(uid)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if(doc.exists()){
+                        result.setValue(doc.getString("avatar"));
+                    }else{
+                        result.setValue(null);
+                    }
+                })
+                .addOnFailureListener(e -> result.setValue(null));
+
         return result;
     }
 

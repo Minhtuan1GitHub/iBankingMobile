@@ -34,9 +34,6 @@ public class SavingAccountActivity extends AppCompatActivity {
 
     private ActivitySavingAccountBinding binding;
     private SavingAccountViewModel viewModel;
-    private Customer customer;
-    private CustomerRepository customerRepository;
-    private FirebaseFirestore firestore;
     private CustomerViewModel customerViewModel;
 
     public enum TransactionType {
@@ -95,12 +92,6 @@ public class SavingAccountActivity extends AppCompatActivity {
                     );
                     binding.tvDueDateValue.setText(dueDate);
                 });
-
-
-
-
-
-
 
         binding.btnDeposit.setOnClickListener(v->showDeposit());
         binding.btnConfirmDeposit.setOnClickListener(v->confirmDeposit());

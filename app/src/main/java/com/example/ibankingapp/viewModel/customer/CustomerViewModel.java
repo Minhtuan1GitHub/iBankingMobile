@@ -98,5 +98,7 @@ public class CustomerViewModel extends AndroidViewModel {
     public LiveData<Boolean> verifyPin(String uid, String pin){
         return repository.verifyPin(uid, pin);
     }
-
+    public LiveData<String> getImage(String uid){
+        return repository.getImage(uid);
+    }
 }

@@ -52,6 +52,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-firestore")
 
+
     // Credentials & Google Sign-In
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
@@ -96,6 +97,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
+
+
 
 
 }
