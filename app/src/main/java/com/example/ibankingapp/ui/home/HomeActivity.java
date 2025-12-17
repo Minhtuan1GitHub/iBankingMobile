@@ -1,21 +1,25 @@
 package com.example.ibankingapp.ui.home;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
 import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
 import com.example.ibankingapp.ui.login.RegisterActivity;
 import com.example.ibankingapp.ui.maps.MapsActivity;
 import com.example.ibankingapp.ui.notification.NotificationActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
+import com.example.ibankingapp.ui.transfer.DepositWithdrawActivity;
 import com.example.ibankingapp.ui.transfer.TransferActivity;
 import com.example.ibankingapp.ui.transfer.transaction.BillPaymentActivity;
 import com.example.ibankingapp.ui.transfer.transaction.HistoryTransactionActivity;
+import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModelFactory;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
     private ActivityHomeBinding homeBinding;
+    private CustomerViewModel customerViewModel;
 
 
     @Override
@@ -30,6 +35,16 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         homeBinding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(homeBinding.getRoot());
+
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        customerViewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
+        customerViewModel.getImage(uid).observe(this, image->{
+            if (image!=null){
+                homeBinding.imgAvatar.setImageURI(Uri.parse(image));
+            }else{
+                homeBinding.imgAvatar.setImageResource(R.drawable.ic_saving);
+            }
+        });
 
         homeBinding.fabTransfers .setOnClickListener(v->{
             startActivity(new Intent(this, TransferActivity.class));
@@ -42,6 +57,18 @@ public class HomeActivity extends AppCompatActivity {
         homeBinding.navHistory.setOnClickListener(v->{
             startActivity(new Intent(this, HistoryTransactionActivity.class));
         });
+        homeBinding.btnDeposit.setOnClickListener(v -> {
+            Intent intent = new Intent(this, DepositWithdrawActivity.class);
+            intent.putExtra("tab", 0); // 0 = Nạp
+            startActivity(intent);
+        });
+
+        homeBinding.btnWithdraw.setOnClickListener(v -> {
+            Intent intent = new Intent(this, DepositWithdrawActivity.class);
+            intent.putExtra("tab", 1); // 1 = Rút
+            startActivity(intent);
+        });
+
 
         homeBinding.navMap.setOnClickListener(v->{
             startActivity(new Intent(this, MapsActivity.class));

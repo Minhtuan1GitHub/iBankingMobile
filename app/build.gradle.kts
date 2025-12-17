@@ -61,6 +61,13 @@ dependencies {
     // Google Play Services
     implementation("com.google.android.gms:play-services-base:18.5.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation(fileTree(mapOf(
+        "dir" to "E:\\ZaloPayLib",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf("")
+    )))
+    implementation("com.squareup.okhttp3:okhttp:4.6.0")
+    implementation("commons-codec:commons-codec:1.14")
 
     // Testing
     testImplementation(libs.junit)
