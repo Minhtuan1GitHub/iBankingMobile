@@ -101,4 +101,80 @@ public class CustomerViewModel extends AndroidViewModel {
     public LiveData<String> getImage(String uid){
         return repository.getImage(uid);
     }
+
+    // --------------------------------------------------------
+    // WALLET DEPOSIT (Nạp tiền vào ví chính qua VNPay)
+    // --------------------------------------------------------
+    public LiveData<TransactionResult> walletDeposit(String uid, double amount) {
+        MutableLiveData<TransactionResult> result = new MutableLiveData<>();
+
+        repository.walletDeposit(uid, amount, new CustomerRepository.OnTransactionComplete() {
+            @Override
+            public void onSuccess(String accountNumber, double newBalance) {
+                result.postValue(new TransactionResult(true, "Giao dịch thành công", accountNumber, newBalance));
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                result.postValue(new TransactionResult(false, errorMessage, null, 0));
+            }
+        });
+
+        return result;
+    }
+
+    // --------------------------------------------------------
+    // WALLET WITHDRAW (Rút tiền từ ví chính)
+    // --------------------------------------------------------
+    public LiveData<TransactionResult> walletWithdraw(String uid, double amount) {
+        MutableLiveData<TransactionResult> result = new MutableLiveData<>();
+
+        repository.walletWithdraw(uid, amount, new CustomerRepository.OnTransactionComplete() {
+            @Override
+            public void onSuccess(String accountNumber, double newBalance) {
+                result.postValue(new TransactionResult(true, "Giao dịch thành công", accountNumber, newBalance));
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                result.postValue(new TransactionResult(false, errorMessage, null, 0));
+            }
+        });
+
+        return result;
+    }
+
+    // --------------------------------------------------------
+    // TRANSACTION RESULT CLASS
+    // --------------------------------------------------------
+    public static class TransactionResult {
+        private final boolean success;
+        private final String message;
+        private final String accountNumber;
+        private final double newBalance;
+
+        public TransactionResult(boolean success, String message, String accountNumber, double newBalance) {
+            this.success = success;
+            this.message = message;
+            this.accountNumber = accountNumber;
+            this.newBalance = newBalance;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getAccountNumber() {
+            return accountNumber;
+        }
+
+        public double getNewBalance() {
+            return newBalance;
+        }
+    }
+
 }
