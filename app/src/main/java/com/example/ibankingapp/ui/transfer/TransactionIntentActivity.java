@@ -16,6 +16,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
     private ActivityTransactionIntentBinding binding;
     private String transactionType; // Cần nhận loại giao dịch: "DEPOSIT" hoặc "WITHDRAW"
     private double amountDouble;
+    private boolean vnpayPaymentSent = false; // Đánh dấu đã gửi yêu cầu thanh toán VNPay
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -46,8 +47,13 @@ public class TransactionIntentActivity extends AppCompatActivity {
         // (Giả sử trong layout file xml của em có nút id là btnConfirm)
         binding.btnPay.setOnClickListener(v -> {
             if ("DEPOSIT".equals(transactionType)) {
-                // -> Nạp tiền: Gọi VNPay
-                processDepositVNPay((int) amountDouble);
+                if (!vnpayPaymentSent) {
+                    // -> Nạp tiền: Gọi VNPay
+                    processDepositVNPay((int) amountDouble);
+                } else {
+                    // Người dùng xác nhận đã thanh toán xong -> Chuyển sang màn hình thành công
+                    navigateToSuccess();
+                }
             } else {
                 // -> Rút tiền/Chuyển khoản: Xử lý nội bộ
                 processInternalTransaction();
@@ -70,6 +76,18 @@ public class TransactionIntentActivity extends AppCompatActivity {
             // Mở trình duyệt với URL này
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
             startActivity(browserIntent);
+            vnpayPaymentSent = true;
+//
+//            // Đánh dấu đã gửi yêu cầu thanh toán
+//
+//            binding.btnPay.setText("XÁC NHẬN ĐÃ THANH TOÁN");
+//
+//            // Hiển thị thông báo hướng dẫn
+//            Toast.makeText(this,
+//                "Vui lòng hoàn tất thanh toán trên trang VNPay, sau đó quay lại app và nhấn nút xác nhận",
+//                Toast.LENGTH_LONG).show();
+//
+//            // (Trong production, cần có webhook server để verify thanh toán)
 
         } catch (Exception e) {
             Toast.makeText(this, "Lỗi tạo link thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -108,7 +126,26 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
     private void navigateToSuccess() {
         Intent successIntent = new Intent(this, SuccessfullTransferActivity.class);
-        successIntent.putExtra("amount", String.valueOf((int)amountDouble));
+
+        // Truyền đầy đủ thông tin giao dịch
+        successIntent.putExtra("title", "GIAO DỊCH THÀNH CÔNG");
+        successIntent.putExtra("amount", amountDouble);
+        successIntent.putExtra("to", getIntent().getStringExtra("recipientName"));
+        successIntent.putExtra("from", getIntent().getStringExtra("recipientAccount"));
+        successIntent.putExtra("time", System.currentTimeMillis());
+        successIntent.putExtra("transactionType", transactionType);
+
+        // Thêm nội dung giao dịch dựa trên loại
+        String description = "";
+        if ("DEPOSIT".equals(transactionType)) {
+            description = "Nạp tiền vào tài khoản qua VNPay";
+        } else if ("WITHDRAW".equals(transactionType)) {
+            description = "Rút tiền từ tài khoản";
+        } else {
+            description = "Chuyển khoản";
+        }
+        successIntent.putExtra("description", description);
+
         startActivity(successIntent);
         finish();
     }
