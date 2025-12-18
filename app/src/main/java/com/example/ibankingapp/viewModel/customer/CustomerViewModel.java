@@ -58,11 +58,11 @@ public class CustomerViewModel extends AndroidViewModel {
         repository.updateCustomer(customer);
     }
 
-    public LiveData<Boolean> transfer(String from, String to, double amount){
+    public LiveData<Boolean> transfer(String from, String to, double amount) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
         Executors.newSingleThreadExecutor().execute(() -> {
             boolean success = repository.transfer(from, to, amount); // thực hiện transfer
-            if (success){
+            if (success) {
                 loadCustomers(); // nếu bạn muốn refresh data
             }
             result.postValue(success);
@@ -70,7 +70,7 @@ public class CustomerViewModel extends AndroidViewModel {
         return result;
     }
 
-    public LiveData<Boolean> hasSavingAccount(String customerId){
+    public LiveData<Boolean> hasSavingAccount(String customerId) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -78,7 +78,7 @@ public class CustomerViewModel extends AndroidViewModel {
                 .whereEqualTo("customer_id", customerId)
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         result.postValue(!task.getResult().isEmpty());
                     } else {
                         result.postValue(false);
@@ -86,19 +86,24 @@ public class CustomerViewModel extends AndroidViewModel {
                 });
         return result;
     }
+
     public LiveData<Customer> getCustomer(String uid) {
         return repository.getCustomerByUid(uid);
     }
-    public void deposit(String uid, double amount){
+
+    public void deposit(String uid, double amount) {
         repository.deposit(uid, amount);
     }
-    public void withdraw(String uid, double amount){
+
+    public void withdraw(String uid, double amount) {
         repository.withdraw(uid, amount);
     }
-    public LiveData<Boolean> verifyPin(String uid, String pin){
+
+    public LiveData<Boolean> verifyPin(String uid, String pin) {
         return repository.verifyPin(uid, pin);
     }
-    public LiveData<String> getImage(String uid){
+
+    public LiveData<String> getImage(String uid) {
         return repository.getImage(uid);
     }
 
@@ -176,5 +181,4 @@ public class CustomerViewModel extends AndroidViewModel {
             return newBalance;
         }
     }
-
 }
