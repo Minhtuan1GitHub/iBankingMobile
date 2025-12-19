@@ -10,17 +10,25 @@ import java.util.List;
 
 public class NotificationViewModel extends ViewModel {
     private final NotificationRepository repo;
+
     public NotificationViewModel(NotificationRepository repo){
         this.repo = repo;
     }
+
     public LiveData<List<NotificationEntity>> getNotifications(String customerId){
         return repo.getNotifications(customerId);
     }
+
     public LiveData<Integer> getUnreadCount(String customerId){
         return repo.getUnreadCount(customerId);
     }
+
     public void markAsRead(){
         repo.markAsRead();
     }
 
+    // Thêm notification mới (tuân thủ MVVM)
+    public void addNotification(NotificationEntity notification) {
+        repo.addNotification(notification);
+    }
 }

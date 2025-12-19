@@ -12,7 +12,7 @@ if (localPropertiesFile.exists()) {
 
 android {
     namespace = "com.example.ibankingapp"
-    compileSdk = 36  // ✅ SỬA LẠI
+    compileSdk = 36
 
     buildFeatures {
         dataBinding = true
