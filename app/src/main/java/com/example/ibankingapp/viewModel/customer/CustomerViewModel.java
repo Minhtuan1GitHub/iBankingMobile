@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.ibankingapp.entity.PhoneEntity;
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.repository.CustomerRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -144,6 +145,9 @@ public class CustomerViewModel extends AndroidViewModel {
         return result;
     }
 
+    public LiveData<PhoneEntity> getPhone(String phone){
+        return repository.getPhone(phone);
+    }
     // --------------------------------------------------------
     // TRANSACTION RESULT CLASS
     // --------------------------------------------------------

@@ -12,6 +12,9 @@ import com.example.ibankingapp.databinding.ActivityLoginBinding;
 import com.example.ibankingapp.ui.admin.AdminActivity;
 import com.example.ibankingapp.ui.home.HomeActivity;
 import com.example.ibankingapp.utils.BillSeeder;
+import com.example.ibankingapp.utils.PhoneSeeder;
+import com.example.ibankingapp.utils.TelcoSeeder;
+import com.example.ibankingapp.utils.TopupPackageSeeder;
 import com.example.ibankingapp.viewModel.login.FirebaseAuthManager;
 import com.example.ibankingapp.viewModel.login.LoginViewModel;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +35,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         BillSeeder.seedBill();
+        TelcoSeeder.seedTelcoProvider();
+        TopupPackageSeeder.seedPackagesOnce();
+        PhoneSeeder.seedPhone();
         loginBinding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(loginBinding.getRoot());
         viewModelLogin = new ViewModelProvider(this).get(LoginViewModel.class);
