@@ -23,6 +23,7 @@ import com.example.ibankingapp.repository.NotificationRepository;
 import com.example.ibankingapp.ui.home.HomeActivity;
 import com.example.ibankingapp.utils.NotificationHelper;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,7 +49,37 @@ public class TransferActivity extends AppCompatActivity {
         loadCurrentCustomer();
         setupReceiverLookup();
         transferBinding.btnTransfer.setOnClickListener(v -> clickTransfer());
+        transferBinding.tabTransferType.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 1) {
+                    // Chế độ: Chuyển tiền LIÊN NGÂN HÀNG
+                    transferBinding.tilBankProvider.setVisibility(View.VISIBLE);
+                    transferBinding.edtRecipientAccount.setHint("Số tài khoản liên ngân hàng");
+
+                    // Nếu bạn muốn làm trống các ô nhập khi đổi tab để tránh nhầm lẫn
+                    clearFields();
+                } else {
+                    // Chế độ: Chuyển tiền NỘI BỘ
+                    transferBinding.tilBankProvider.setVisibility(View.GONE);
+                    transferBinding.edtRecipientAccount.setHint("Số tài khoản/SĐT nội bộ");
+
+                    clearFields();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // Không cần xử lý
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // Không cần xử lý
+            }
+        });
     }
+    private void clearFields(){}
 
     private void loadCurrentCustomer() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

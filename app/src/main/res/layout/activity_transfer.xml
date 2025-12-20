@@ -23,6 +23,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabTransferType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorFullWidth="true"
+            app:tabMode="fixed">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nội bộ" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Liên ngân hàng" />
+        </com.google.android.material.tabs.TabLayout>
+
         <TextView
             android:id="@+id/tvSourceAccountLabel"
             android:layout_width="wrap_content"
@@ -31,7 +54,7 @@
             android:text="Tài khoản nguồn:"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/tabTransferType" />
 
         <TextView
             android:id="@+id/tvSourceBalance"
@@ -57,23 +80,23 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilAmount"
+            android:id="@+id/tilBankProvider"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@+id/divider"
-            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:prefixText="VND">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider"
+            tools:visibility="visible">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtAmount"
+            <AutoCompleteTextView
+                android:id="@+id/spinnerBank"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập số tiền"
-                android:inputType="numberDecimal"
-                android:maxLength="15" />
+                android:hint="Chọn ngân hàng thụ hưởng"
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -82,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@+id/tilAmount"
+            app:layout_constraintTop_toBottomOf="@+id/tilBankProvider"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -90,7 +113,7 @@
                 android:id="@+id/edtRecipientAccount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số tài khoản/SĐT người nhận"
+                android:hint="Số tài khoản người nhận"
                 android:inputType="number"
                 android:maxLength="20" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -107,15 +130,35 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Nguyễn Văn A"
-            tools:visibility="visible"
             android:visibility="gone" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilAmount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:hintEnabled="true"
+            app:layout_constraintTop_toBottomOf="@+id/tvRecipientName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:prefixText="VND ">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập số tiền"
+                android:inputType="number"
+                android:maxLength="15" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:hintEnabled="true"
-            app:layout_constraintTop_toBottomOf="@+id/tvRecipientName"
+            app:layout_constraintTop_toBottomOf="@+id/tilAmount"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -123,7 +166,7 @@
                 android:id="@+id/edtDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nội dung chuyển khoản (Không bắt buộc)"
+                android:hint="Nội dung chuyển khoản"
                 android:inputType="textCapSentences|textMultiLine"
                 android:maxLength="100" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -132,8 +175,9 @@
             android:id="@+id/btnTransfer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="TIẾP TỤC CHUYỂN KHOẢN"
+            android:text="TIẾP TỤC"
             android:minHeight="56dp"
+            app:cornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

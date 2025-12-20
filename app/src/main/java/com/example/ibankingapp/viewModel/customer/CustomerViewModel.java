@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.ibankingapp.entity.CustomerEntity;
 import com.example.ibankingapp.entity.PhoneEntity;
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.repository.CustomerRepository;
@@ -87,9 +88,26 @@ public class CustomerViewModel extends AndroidViewModel {
                 });
         return result;
     }
+    public LiveData<Boolean> hasMortageAccount(String customerId){
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("mortgages")
+                .whereEqualTo("customerId", customerId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        result.postValue(!task.getResult().isEmpty());
+                    } else {
+                        result.postValue(false);
+                    }
+                });
+        return result;
+    }
     public LiveData<Customer> getCustomer(String uid) {
         return repository.getCustomerByUid(uid);
     }
+
     public void deposit(String uid, double amount){
         repository.deposit(uid, amount);
     }

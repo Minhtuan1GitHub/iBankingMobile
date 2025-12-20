@@ -105,7 +105,7 @@
             >
         </activity>
         <activity
-            android:name=".ui.customerList.CreateSavingAccountActivity"
+            android:name=".ui.account.saving.CreateSavingAccountActivity"
             android:exported="true"
             >
         </activity>
@@ -149,6 +149,16 @@
         >
 
         </activity>
+        <activity android:name=".ui.account.mortage.CreateMortageAccountActivity"
+            android:exported="true">
+
+        </activity>
+        <activity android:name=".ui.account.mortage.MortageAccountActivity"
+            android:exported="true">
+
+        </activity>
+
+
 
     </application>
 

@@ -1,4 +1,4 @@
-package com.example.ibankingapp.ui.customerList;
+package com.example.ibankingapp.ui.account.saving;
 
 import android.os.Bundle;
 
@@ -45,7 +45,7 @@ public class CreateSavingAccountActivity extends AppCompatActivity {
         double amount = Double.parseDouble(binding.edtAmount.getText().toString());
         String termString = binding.spnTerm.getSelectedItem().toString(); // "3 tháng"
 
-// Tách lấy phần số đầu tiên
+
         String term = termString.split(" ")[0]; // → "3"
 
         Long termLong = Long.parseLong(term);

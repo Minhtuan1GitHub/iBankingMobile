@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
+import com.example.ibankingapp.ui.account.mortage.MortageAccountActivity;
 import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
 import com.example.ibankingapp.ui.login.RegisterActivity;
 import com.example.ibankingapp.ui.maps.MapsActivity;
@@ -194,6 +195,9 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.btnPhone.setOnClickListener(v->{
             startActivity(new Intent(this, TopupActivity.class));
+        });
+        homeBinding.btnMortgage.setOnClickListener(v->{
+            startActivity(new Intent(this, MortageAccountActivity.class));
         });
     }
     /**
