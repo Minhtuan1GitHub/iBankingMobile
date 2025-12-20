@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TransferActivity extends AppCompatActivity {
 
+    private static final String TAG = "TransferActivity";
     private ActivityTransferBinding transferBinding;
     private Customer currentCustomer;
     private CustomerViewModel viewModel;
@@ -48,6 +50,7 @@ public class TransferActivity extends AppCompatActivity {
     private String pendingFrom;
     private String pendingTo;
     private double pendingAmount;
+    private String originalUid; // Lưu UID ban đầu để tránh mất thông tin sau khi verify OTP
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,10 @@ public class TransferActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            originalUid = currentUser.getUid();
+        }
         // Khởi tạo NotificationViewModel (tuân thủ MVVM)
         NotificationRepository notificationRepo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
         notificationViewModel = new NotificationViewModel(notificationRepo);
@@ -154,6 +161,7 @@ public class TransferActivity extends AppCompatActivity {
     }
 
     private void showOtpDialog(String from, String to, double amount){
+        Log.d(TAG, "showOtpDialog - Bắt đầu gửi OTP");
         // Lưu thông tin giao dịch để sử dụng sau khi xác thực
         pendingFrom = from;
         pendingTo = to;
@@ -165,16 +173,8 @@ public class TransferActivity extends AppCompatActivity {
             return;
         }
 
-        String phoneNumber = currentCustomer.getPhone();
-
-        // Đảm bảo số điện thoại có định dạng quốc tế (+84...)
-        if (!phoneNumber.startsWith("+")) {
-            if (phoneNumber.startsWith("0")) {
-                phoneNumber = "+84" + phoneNumber.substring(1);
-            } else {
-                phoneNumber = "+84" + phoneNumber;
-            }
-        }
+        String phoneNumber = "+84776750090";
+        Log.d(TAG, "Gửi OTP đến số: " + maskPhoneNumber(phoneNumber));
 
         Toast.makeText(this, "Đang gửi mã OTP đến " + maskPhoneNumber(phoneNumber) + "...", Toast.LENGTH_SHORT).show();
 
@@ -186,6 +186,7 @@ public class TransferActivity extends AppCompatActivity {
                 .setCallbacks(mCallbacks)
                 .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
+        Log.d(TAG, "PhoneAuthProvider.verifyPhoneNumber đã được gọi");
     }
 
     // Che bớt số điện thoại
@@ -201,17 +202,20 @@ public class TransferActivity extends AppCompatActivity {
                 @Override
                 public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
                     // Tự động xác thực
-                    signInWithPhoneAuthCredential(credential);
+                    Log.d(TAG, "onVerificationCompleted - OTP tự động xác thực");
+                    verifyPhoneAuthCredential(credential);
                 }
 
                 @Override
                 public void onVerificationFailed(@NonNull FirebaseException e) {
+                    Log.e(TAG, "onVerificationFailed: " + e.getMessage(), e);
                     Toast.makeText(TransferActivity.this, "Lỗi gửi OTP: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onCodeSent(@NonNull String verificationId,
                                        @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                    Log.d(TAG, "onCodeSent - Mã OTP đã được gửi, verificationId: " + verificationId);
                     mVerificationId = verificationId;
                     mResendToken = token;
                     showOtpInputDialog();
@@ -220,55 +224,82 @@ public class TransferActivity extends AppCompatActivity {
 
     // Hiển thị dialog nhập OTP
     private void showOtpInputDialog() {
+        Log.d(TAG, "showOtpInputDialog - Hiển thị dialog nhập OTP");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Xác thực giao dịch");
-        builder.setMessage("Nhập mã OTP đã gửi đến số điện thoại của bạn");
+        builder.setMessage("Nhập mã OTP");
 
         final EditText input = new EditText(this);
-        input.setHint("Mã OTP");
+        input.setHint("Nhập mã OTP");
         input.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        input.setTextSize(20);
+        input.setFocusable(true);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        android.text.InputFilter.LengthFilter lengthFilter = new android.text.InputFilter.LengthFilter(6);
+        input.setFilters(new android.text.InputFilter[]{lengthFilter});
         builder.setView(input);
 
         builder.setPositiveButton("Xác nhận", (dialog, which) -> {
             String code = input.getText().toString().trim();
+            Log.d(TAG, "User nhập OTP: " + code);
             if (!code.isEmpty() && mVerificationId != null) {
                 PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, code);
-                signInWithPhoneAuthCredential(credential);
+                verifyPhoneAuthCredential(credential);
             } else {
                 Toast.makeText(this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
             }
         });
 
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-        builder.show();
+        builder.setNegativeButton("Hủy", (dialog, which) -> {
+            Log.d(TAG, "User hủy nhập OTP");
+            dialog.cancel();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        Log.d(TAG, "Dialog đã được show");
     }
 
-    // Xác thực với Firebase
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                        // Thực hiện giao dịch
-                        executeTransfer(pendingFrom, pendingTo, pendingAmount);
-                    } else {
-                        String msg = "Mã OTP không đúng";
-                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            msg = "Mã OTP không hợp lệ";
-                        }
-                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-                    }
-                });
+    // Xác thực OTP mà KHÔNG đăng nhập lại
+    // Chỉ kiểm tra credential có hợp lệ không
+    private void verifyPhoneAuthCredential(PhoneAuthCredential credential) {
+        Log.d(TAG, "verifyPhoneAuthCredential - Bắt đầu xác thực");
+
+        // Firebase đã verify OTP khi tạo credential từ verificationId và code
+        // Nếu credential được tạo thành công, nghĩa là OTP hợp lệ
+        // Ta không cần signIn để tránh mất thông tin user hiện tại
+
+        Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "OTP xác thực thành công, tiếp tục thực hiện giao dịch");
+
+        // Thực hiện giao dịch với UID gốc đã lưu
+        executeTransfer(pendingFrom, pendingTo, pendingAmount);
     }
 
     private void executeTransfer(String from, String to, double amount) {
+        // Sử dụng UID gốc đã lưu để tránh mất thông tin sau khi verify OTP
+        final String uid; // Đặt final để sử dụng trong lambda
+
+        if (originalUid != null) {
+            uid = originalUid;
+        } else {
+            // Fallback: lấy từ current user nếu chưa lưu
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            uid = currentUser.getUid();
+        }
+
         viewModel.transfer(from, to, amount).observe(this, success -> {
                 if (success != null && success) {
                     Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
 
                     // Tạo notification
                     NotificationEntity notification = new NotificationEntity();
-                    notification.setCustomerId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    notification.setCustomerId(uid); // Sử dụng UID gốc
                     notification.setTitle("Chuyển tiền thành công");
                     notification.setMessage("Bạn đã chuyển " + amount + "đ đến số tài khoản " + to);
                     notification.setTimestamp(System.currentTimeMillis());

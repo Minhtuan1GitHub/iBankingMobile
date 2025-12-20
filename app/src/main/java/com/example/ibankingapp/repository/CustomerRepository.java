@@ -190,26 +190,118 @@ public class CustomerRepository {
     }
 
     public boolean transfer(String from, String to, double amount){
-        //return customerDao.transfer(from, to, amount);
+        android.util.Log.d("CustomerRepository", "transfer() - Bắt đầu chuyển tiền");
+        android.util.Log.d("CustomerRepository", "From: " + from + ", To: " + to + ", Amount: " + amount);
 
+        // Bước 1: Kiểm tra trong Room DB trước (để có phản hồi nhanh cho user)
+        CustomerEntity senderLocal = customerDao.getCustomerByAccountNumber(from);
+        CustomerEntity receiverLocal = customerDao.getCustomerByAccountNumber(to);
 
+        android.util.Log.d("CustomerRepository", "Room DB - Sender: " + (senderLocal != null ? senderLocal.getFullName() + " (Balance: " + senderLocal.getBalance() + ")" : "NULL"));
+        android.util.Log.d("CustomerRepository", "Room DB - Receiver: " + (receiverLocal != null ? receiverLocal.getFullName() : "NULL"));
+
+        // Nếu dữ liệu chưa có trong Room, thử đồng bộ từ Firestore
+        if (senderLocal == null || receiverLocal == null) {
+            android.util.Log.w("CustomerRepository", "Dữ liệu chưa có trong Room DB, đang thử lấy từ Firestore...");
+
+            // Thử lấy từ Firestore đồng bộ
+            try {
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> senderTask =
+                    firestore.collection("customers")
+                        .whereEqualTo("accountNumber", from)
+                        .get();
+
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> receiverTask =
+                    firestore.collection("customers")
+                        .whereEqualTo("accountNumber", to)
+                        .get();
+
+                // Đợi cả 2 task hoàn thành
+                com.google.android.gms.tasks.Tasks.await(senderTask);
+                com.google.android.gms.tasks.Tasks.await(receiverTask);
+
+                if (senderTask.isSuccessful() && !senderTask.getResult().isEmpty()) {
+                    com.google.firebase.firestore.DocumentSnapshot senderDoc = senderTask.getResult().getDocuments().get(0);
+                    senderLocal = convertDocumentToEntity(senderDoc);
+                    customerDao.insertCustomer(senderLocal);
+                    android.util.Log.d("CustomerRepository", "Đã lấy và lưu sender từ Firestore");
+                }
+
+                if (receiverTask.isSuccessful() && !receiverTask.getResult().isEmpty()) {
+                    com.google.firebase.firestore.DocumentSnapshot receiverDoc = receiverTask.getResult().getDocuments().get(0);
+                    receiverLocal = convertDocumentToEntity(receiverDoc);
+                    customerDao.insertCustomer(receiverLocal);
+                    android.util.Log.d("CustomerRepository", "Đã lấy và lưu receiver từ Firestore");
+                }
+
+            } catch (Exception e) {
+                android.util.Log.e("CustomerRepository", "Lỗi khi lấy dữ liệu từ Firestore: " + e.getMessage());
+                transactionRepository.logTransaction(from, to, amount, "fail", "transfer", "Lỗi hệ thống");
+                return false;
+            }
+        }
+
+        // Bước 2: Thực hiện transfer trong Room DB
         boolean success = customerDao.transfer(from, to, amount);
+        android.util.Log.d("CustomerRepository", "DAO transfer result: " + success);
+
         if (!success){
-            transactionRepository.logTransaction(from, to, amount, "fail", "transfer", "Không đủ số dư");
+            android.util.Log.e("CustomerRepository", "Transfer FAILED - Ghi log giao dịch thất bại");
+            transactionRepository.logTransaction(from, to, amount, "fail", "transfer", "Không đủ số dư hoặc tài khoản không tồn tại");
             return false;
         }
 
+        // Bước 3: Đồng bộ lên Firestore
         CustomerEntity sender = customerDao.getCustomerByAccountNumber(from);
         CustomerEntity receiver = customerDao.getCustomerByAccountNumber(to);
+
+        android.util.Log.d("CustomerRepository", "After transfer - Sender: " + (sender != null ? sender.getFullName() + " (New Balance: " + sender.getBalance() + ")" : "NULL"));
+        android.util.Log.d("CustomerRepository", "After transfer - Receiver: " + (receiver != null ? receiver.getFullName() + " (New Balance: " + receiver.getBalance() + ")" : "NULL"));
 
         firestore.collection("customers").document(sender.getId()).set(sender);
         firestore.collection("customers").document(receiver.getId()).set(receiver);
 
         transactionRepository.logTransaction(from, to, amount, "success", "transfer", "Chuyển khoản thành công");
 
-
+        android.util.Log.d("CustomerRepository", "Transfer SUCCESS - Đã đồng bộ lên Firestore");
 
         return true;
+    }
+
+    // Helper method để chuyển đổi DocumentSnapshot thành CustomerEntity
+    private CustomerEntity convertDocumentToEntity(com.google.firebase.firestore.DocumentSnapshot doc) {
+        CustomerEntity entity = new CustomerEntity();
+
+        // Xử lý id
+        Object idObj = doc.get("id");
+        if (idObj != null) {
+            if (idObj instanceof Long) {
+                entity.setId(String.valueOf(idObj));
+            } else if (idObj instanceof String) {
+                entity.setId((String) idObj);
+            }
+        } else {
+            entity.setId(doc.getId());
+        }
+
+        entity.setFullName(doc.getString("fullName"));
+        entity.setAccountNumber(doc.getString("accountNumber"));
+//        entity.setEmail(doc.getString("email"));
+        entity.setPhone(doc.getString("phone"));
+//        entity.setAddress(doc.getString("address"));
+//        entity.setPin(doc.getString("pin"));
+        entity.setRole(doc.getString("role"));
+//        entity.setImage(doc.getString("image"));
+
+        // Xử lý balance
+        Object balanceObj = doc.get("balance");
+        if (balanceObj instanceof Number) {
+            entity.setBalance(((Number) balanceObj).doubleValue());
+        } else {
+            entity.setBalance(0.0);
+        }
+
+        return entity;
     }
     public CustomerEntity getCustomerByAccount(String accountNumber) {
         return customerDao.getCustomerByAccount(accountNumber);

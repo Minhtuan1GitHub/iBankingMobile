@@ -36,11 +36,23 @@ public interface CustomerDao {
 
     @Transaction
     default boolean transfer(String from, String to, double amount){
+        android.util.Log.d("CustomerDao", "transfer() - From: " + from + ", To: " + to + ", Amount: " + amount);
+
         CustomerEntity sender = getCustomerByAccountNumber(from);
         CustomerEntity receiver = getCustomerByAccountNumber(to);
 
-        if (sender == null || receiver == null) return false;
-        if (sender.getBalance() < amount) return false;
+        android.util.Log.d("CustomerDao", "Sender from DB: " + (sender != null ? sender.getFullName() + " (Balance: " + sender.getBalance() + ")" : "NULL"));
+        android.util.Log.d("CustomerDao", "Receiver from DB: " + (receiver != null ? receiver.getFullName() : "NULL"));
+
+        if (sender == null || receiver == null) {
+            android.util.Log.e("CustomerDao", "Transfer FAILED - Sender or Receiver is NULL");
+            return false;
+        }
+
+        if (sender.getBalance() < amount) {
+            android.util.Log.e("CustomerDao", "Transfer FAILED - Insufficient balance. Current: " + sender.getBalance() + ", Required: " + amount);
+            return false;
+        }
 
         sender.setBalance(sender.getBalance() - amount);
         receiver.setBalance(receiver.getBalance() + amount);
@@ -48,6 +60,7 @@ public interface CustomerDao {
         updateCustomer(sender);
         updateCustomer(receiver);
 
+        android.util.Log.d("CustomerDao", "Transfer SUCCESS - Updated balances in Room DB");
 
         return true;
     }
