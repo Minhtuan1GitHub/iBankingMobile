@@ -156,17 +156,17 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(this, HistoryTransactionActivity.class));
         });
 
-        homeBinding.btnDeposit.setOnClickListener(v -> {
+        homeBinding.btnDepositWithdraw.setOnClickListener(v -> {
             Intent intent = new Intent(this, DepositWithdrawActivity.class);
             intent.putExtra("tab", 0); // 0 = Nạp
             startActivity(intent);
         });
 
-        homeBinding.btnWithdraw.setOnClickListener(v -> {
-            Intent intent = new Intent(this, DepositWithdrawActivity.class);
-            intent.putExtra("tab", 1); // 1 = Rút
-            startActivity(intent);
-        });
+//        homeBinding.btnWithdraw.setOnClickListener(v -> {
+//            Intent intent = new Intent(this, DepositWithdrawActivity.class);
+//            intent.putExtra("tab", 1); // 1 = Rút
+//            startActivity(intent);
+//        });
 
         homeBinding.navMap.setOnClickListener(v -> {
             startActivity(new Intent(this, MapsActivity.class));
