@@ -70,6 +70,45 @@ public class HomeActivity extends AppCompatActivity {
 
         // Setup notification badge
         setupNotificationBadge();
+
+        handleNavigationIntent(getIntent());
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNavigationIntent(intent);
+    }
+
+    private void handleNavigationIntent(Intent intent) {
+        if (intent != null) {
+            String destination = intent.getStringExtra("NAVIGATE_TO");
+            if (destination != null) {
+                switch (destination) {
+                    case "DEPOSIT":
+
+                        Intent depositIntent = new Intent(this, DepositWithdrawActivity.class);
+                        depositIntent.putExtra("tab", 0);
+                        depositIntent.putExtra("NAVIGATE_TO", "DEPOSIT"); // Gửi thêm để chắc chắn
+                        startActivity(depositIntent);
+                        break;
+
+                    case "WITHDRAW":
+
+                        Intent withdrawIntent = new Intent(this, DepositWithdrawActivity.class);
+                        withdrawIntent.putExtra("tab", 1);
+                        withdrawIntent.putExtra("NAVIGATE_TO", "WITHDRAW");
+                        startActivity(withdrawIntent);
+                        break;
+
+                    case "TRANSFER":
+                        // Mở màn hình Chuyển khoản
+                        Intent transferIntent = new Intent(this, TransferActivity.class);
+                        startActivity(transferIntent);
+                        break;
+                }
+            }
+        }
     }
 
     /**

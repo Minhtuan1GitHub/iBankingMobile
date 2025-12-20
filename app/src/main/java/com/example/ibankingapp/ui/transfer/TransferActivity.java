@@ -1,5 +1,6 @@
 package com.example.ibankingapp.ui.transfer;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -65,12 +66,9 @@ public class TransferActivity extends AppCompatActivity {
         NotificationRepository notificationRepo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
         notificationViewModel = new NotificationViewModel(notificationRepo);
 
-        transferBinding.fabHome.setOnClickListener(v -> {
-            startActivity(new Intent(this, HomeActivity.class));
-        });
-
         loadCurrentCustomer();
         setupReceiverLookup();
+        transferBinding.btnBack.setOnClickListener(v -> finish());
         transferBinding.btnTransfer.setOnClickListener(v -> clickTransfer());
     }
 
@@ -115,18 +113,19 @@ public class TransferActivity extends AppCompatActivity {
 
         viewModel.getCustomerByAccountNumber(accountNumber).observe(this, recipient -> {
             if (recipient != null && recipient.getFullName() != null) {
-                transferBinding.tvRecipientName.setText(recipient.getFullName());
+                transferBinding.tvRecipientName.setText(recipient.getFullName().toUpperCase());
                 transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
             } else {
-                transferBinding.tvRecipientName.setText("No recipient found");
+                transferBinding.tilRecipientAccount.setError("Không tìm thấy tài khoản");
                 transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
             }
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void clickTransfer() {
         if (currentCustomer == null) {
-            Toast.makeText(this, "Đang load dữ liệu tài khoản nguồn, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đang tải dữ liệu...", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -135,7 +134,15 @@ public class TransferActivity extends AppCompatActivity {
         if (to.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập số tài khoản người nhận", Toast.LENGTH_SHORT).show();
             return;
+        } else {
+            transferBinding.tilRecipientAccount.setError(null); // Xóa lỗi
         }
+        // Kiểm tra số tài khoản người nhận có tồn tại không
+        viewModel.getCustomerByAccountNumber(to).observe(this, recipient -> {
+            if (recipient == null) {
+                transferBinding.tvRecipientName.setText("Không tìm thấy tài khoản");
+            }
+        });
 
         String amountStr = transferBinding.edtAmount.getText().toString().trim();
         if (amountStr.isEmpty()) {
@@ -146,8 +153,13 @@ public class TransferActivity extends AppCompatActivity {
         double amount;
         try {
             amount = Double.parseDouble(amountStr);
+            if (amount <= 0) throw new NumberFormatException();
+            if (amount > currentCustomer.getBalance()) {
+                transferBinding.tilAmount.setError("Số dư không đủ");
+                return;
+            }
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+            transferBinding.tilAmount.setError("Số tiền không hợp lệ");
             return;
         }
 
@@ -310,10 +322,19 @@ public class TransferActivity extends AppCompatActivity {
                     intent.putExtra("amount", amount);
                     intent.putExtra("time", System.currentTimeMillis());
                     intent.putExtra("name", currentCustomer.getFullName());
+                    intent.putExtra("IS_SUCCESS", true);
+                    intent.putExtra("recipientName", transferBinding.tvRecipientName.getText().toString());
+
+                    startActivity(intent);
+                    finish(); // Đóng màn hình chuyển khoản
                     startActivity(intent);
 
                 } else {
-                    Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(this, SuccessfullTransferActivity.class);
+                    intent.putExtra("IS_SUCCESS", false);
+                    intent.putExtra("MESSAGE", "Giao dịch bị từ chối");
+                    startActivity(intent);
                 }
             });
     }

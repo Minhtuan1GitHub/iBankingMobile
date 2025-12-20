@@ -18,19 +18,34 @@ public class DepositWithdrawActivity extends AppCompatActivity {
         binding = ActivityDepositWithdrawBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Adapter
+        // 1. Xử lý Toolbar (Nút Back)
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
+        // 2. Setup Adapter cho ViewPager
         DepositWithdrawAdapter adapter = new DepositWithdrawAdapter(this);
         binding.viewPager.setAdapter(adapter);
 
-        // TabLayout + ViewPager2
+        // 3. Kết nối TabLayout và ViewPager2
         new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
             if (position == 0) tab.setText("NẠP TIỀN");
             else tab.setText("RÚT TIỀN");
         }).attach();
 
-        // Lấy tab được truyền từ HomeActivity
+        // 4. Xử lý điều hướng (Mở đúng tab Nạp hoặc Rút)
+        handleIntentNavigation();
+    }
+
+    private void handleIntentNavigation() {
+        // Hỗ trợ cả kiểu int (code cũ) và String (code mới từ SuccessActivity)
         int tabIndex = getIntent().getIntExtra("tab", 0);
+        String navigateTo = getIntent().getStringExtra("NAVIGATE_TO");
+
+        if ("WITHDRAW".equals(navigateTo)) {
+            tabIndex = 1;
+        } else if ("DEPOSIT".equals(navigateTo)) {
+            tabIndex = 0;
+        }
+
         binding.viewPager.setCurrentItem(tabIndex, false);
     }
 }
-

@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.FragmentWithdrawBinding;
 
 public class WithdrawFragment extends Fragment {
@@ -25,23 +26,57 @@ public class WithdrawFragment extends Fragment {
 
         binding = FragmentWithdrawBinding.inflate(inflater, container, false);
 
-        binding.btnAction.setOnClickListener(v -> {
-            String amount = binding.edtMoney.getText().toString().trim();
+        // 1. Setup Chip Group
+        setupChipGroup();
 
-            if (amount.isEmpty() || Integer.parseInt(amount) < 10000) {
-                Toast.makeText(getContext(), "Vui lòng nhập số tiền tối thiểu là 10000 đ", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Intent intent = new Intent(getActivity(), TransactionIntentActivity.class);
-            intent.putExtra("amount", amount);
-            intent.putExtra("transactionType", "WITHDRAW");
-            intent.putExtra("recipientName", "Rút tiền từ tài khoản");
-            intent.putExtra("recipientAccount", "iBanking App");
-            startActivity(intent);
-        });
+        // 2. Button Action
+        binding.btnAction.setOnClickListener(v -> handleWithdraw());
 
         return binding.getRoot();
+    }
+
+    private void setupChipGroup() {
+        binding.chipGroupAmount.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.chip50k) {
+                binding.edtMoney.setText("50000");
+            } else if (checkedId == R.id.chip100k) {
+                binding.edtMoney.setText("100000");
+            } else if (checkedId == R.id.chip500k) {
+                binding.edtMoney.setText("500000");
+            }
+
+            if (binding.edtMoney.getText() != null) {
+                binding.edtMoney.setSelection(binding.edtMoney.getText().length());
+            }
+        });
+    }
+
+    private void handleWithdraw() {
+        String amountStr = binding.edtMoney.getText().toString().trim();
+
+        if (amountStr.isEmpty()) {
+            binding.tilMoney.setError("Vui lòng nhập số tiền");
+            return;
+        }
+
+        try {
+            double amount = Double.parseDouble(amountStr);
+            if (amount < 10000) {
+                binding.tilMoney.setError("Số tiền tối thiểu là 10,000 VND");
+                return;
+            }
+            binding.tilMoney.setError(null);
+
+            Intent intent = new Intent(getActivity(), TransactionIntentActivity.class);
+            intent.putExtra("amount", String.valueOf((int)amount));
+            intent.putExtra("transactionType", "WITHDRAW");
+            intent.putExtra("recipientName", "Rút tiền về ngân hàng");
+            intent.putExtra("recipientAccount", "Ngân hàng liên kết");
+            startActivity(intent);
+
+        } catch (NumberFormatException e) {
+            binding.tilMoney.setError("Định dạng số tiền không hợp lệ");
+        }
     }
 
     @Override
@@ -50,4 +85,3 @@ public class WithdrawFragment extends Fragment {
         binding = null;
     }
 }
-

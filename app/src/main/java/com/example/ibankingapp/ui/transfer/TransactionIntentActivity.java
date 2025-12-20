@@ -95,6 +95,28 @@ public class TransactionIntentActivity extends AppCompatActivity {
                 startOtpProcess();
             }
         });
+        binding.btnBack.setOnClickListener(v -> finish());
+    }
+
+    private void getIntentData() {
+        Intent intent = getIntent();
+        String amountStr = intent.getStringExtra("amount");
+        if (amountStr != null) {
+            amountStr = amountStr.replace("VND", "").replace(" ", "");
+        } else {
+            amountStr = "0";
+        }
+        transactionType = intent.getStringExtra("transactionType");
+
+        try {
+            amountDouble = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            amountDouble = 0;
+        }
+
+        binding.tvAmountValue.setText(String.format("%,.0f VND", amountDouble));
+        binding.tvRecipientNameValue.setText(intent.getStringExtra("recipientName"));
+        binding.tvRecipientAccountValue.setText(intent.getStringExtra("recipientAccount"));
     }
 
     // Load thông tin khách hàng hiện tại
@@ -115,6 +137,16 @@ public class TransactionIntentActivity extends AppCompatActivity {
                 Toast.makeText(this, "Không tìm thấy thông tin khách hàng", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void setLoading(boolean isLoading) {
+        if (isLoading) {
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.btnPay.setVisibility(View.INVISIBLE); // Ẩn nút đi
+        } else {
+            binding.progressBar.setVisibility(View.GONE);
+            binding.btnPay.setVisibility(View.VISIBLE);
+        }
     }
     // Hàm gửi OTP
     private void startOtpProcess() {
@@ -148,23 +180,21 @@ public class TransactionIntentActivity extends AppCompatActivity {
     private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         @Override
         public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-
+            setLoading(false);
             verifyPhoneAuthCredential(credential);
         }
 
         @Override
         public void onVerificationFailed(@NonNull FirebaseException e) {
-            binding.btnPay.setEnabled(true);
-            Toast.makeText(TransactionIntentActivity.this, "Lỗi gửi OTP: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            setLoading(false);
+            Toast.makeText(TransactionIntentActivity.this, "Lỗi OTP: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void onCodeSent(@NonNull String verificationId,
                                @NonNull PhoneAuthProvider.ForceResendingToken token) {
-            // Gửi thành công -> Lưu ID -> Hiện Dialog nhập
+            setLoading(false);
             mVerificationId = verificationId;
-            binding.btnPay.setEnabled(true);
-
             showOtpInputDialog();
         }
     };
@@ -187,6 +217,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
         builder.setPositiveButton("Xác nhận", (dialog, which) -> {
             String code = input.getText().toString().trim();
             if (!code.isEmpty()) {
+                setLoading(true);
                 verifyOtpCode(code);
             }
         });
@@ -257,6 +288,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         // Gọi ViewModel để xử lý withdraw
         viewModel.walletWithdraw(uid, amountDouble).observe(this, result -> {
+            setLoading(false);
             if (result.isSuccess()) {
                 // Tạo notification cho rút tiền thành công
                 createNotification(
@@ -297,7 +329,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
             }
         }
     }
-    
+
     // Xử lý nạp tiền thành công từ VNPay
     private void processDepositSuccess() {
         final String uid;
