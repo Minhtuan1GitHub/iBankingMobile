@@ -1,87 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <data>
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_vertical">
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-        <TextView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Admin Panel - Create Customer"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="24dp"/>
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp">
 
-        <EditText
-            android:id="@+id/edtEmail"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Email"
-            android:inputType="textEmailAddress"/>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/background_2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/edtPassword"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Password"
-            android:inputType="textPassword"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#B3000000" />
 
-        <EditText
-            android:id="@+id/edtFullName"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Full Name"
-            android:inputType="textCapWords"/>
+            <LinearLayout
+                android:id="@+id/layoutHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/edtOtp"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Otp"
-            android:inputType="textCapWords"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng ký tài khoản"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvSubHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="8dp"
+                android:text="Điền thông tin để mở tài khoản mới"
+                android:textColor="@color/brand_text_secondary"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/layoutHeader" />
 
-        <EditText
-            android:id="@+id/edtPhone"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Phone"
-            android:inputType="textCapWords"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                app:layout_constraintTop_toBottomOf="@id/tvSubHeader">
 
-        <EditText
-            android:id="@+id/edtAccountNumber"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Account Number"
-            android:inputType="numberSigned"/>
+                <EditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:drawableStart="@drawable/ic_account_circle_24"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/white"
+                    android:hint="Email đăng nhập"
+                    android:inputType="textEmailAddress"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/edtAccountType"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Account Type"
-            android:inputType="textNoSuggestions"/>
+                <EditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:drawableStart="@drawable/ic_visibility_off"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/white"
+                    android:hint="Mật khẩu"
+                    android:inputType="textPassword"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/edtBalance"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:hint="Initial Balance"
-            android:inputType="numberDecimal"/>
+                <EditText
+                    android:id="@+id/edtFullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:hint="Họ và tên"
+                    android:inputType="textCapWords"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/btnCreateCustomer"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Create Customer"
-            android:layout_marginTop="24dp"
-            android:textColor="@android:color/white"/>
+                <EditText
+                    android:id="@+id/edtPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:drawableStart="@drawable/ic_mobile_2_24"
+                    android:drawablePadding="12dp"
+                    android:drawableTint="@color/white"
+                    android:hint="Số điện thoại"
+                    android:inputType="phone"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
 
-    </LinearLayout>
+                <EditText
+                    android:id="@+id/edtOtp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:hint="Mã OTP xác thực"
+                    android:inputType="number"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thông tin tài khoản khởi tạo"
+                    android:textColor="@color/brand_blue_accent"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"/>
+
+                <EditText
+                    android:id="@+id/edtAccountNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_edittext_glass"
+                    android:hint="Số tài khoản (Tự động)"
+                    android:inputType="number"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/brand_text_secondary"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edtAccountType"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_edittext_glass"
+                        android:hint="Loại TK"
+                        android:text="PAYMENT"
+                        android:paddingHorizontal="16dp"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/brand_text_secondary"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/edtBalance"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_edittext_glass"
+                        android:hint="Số dư đầu"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="16dp"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/brand_text_secondary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnCreateCustomer"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/bg_button"
+                    android:text="XÁC NHẬN ĐĂNG KÝ"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Quay lại đăng nhập"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:textColor="@color/brand_blue_accent"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

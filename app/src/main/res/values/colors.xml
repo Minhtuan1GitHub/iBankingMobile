@@ -5,4 +5,9 @@
     <color name="grey">#FFC4C4C4</color>
     <color name="red">#FFFF0000</color>
     <color name="green">#FF00FF00</color>
+    <color name="brand_blue_primary">#0056D2</color>
+    <color name="brand_blue_dark">#003E98</color>
+    <color name="brand_blue_accent">#66D0FF</color>
+    <color name="brand_background_dark">#0D1B2A</color>
+    <color name="brand_text_secondary">#B3FFFFFF</color>
 </resources>

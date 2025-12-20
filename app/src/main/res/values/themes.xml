@@ -1,9 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.IBankingApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/brand_blue_primary</item>
+        <item name="colorPrimaryVariant">@color/brand_blue_dark</item>
+        <item name="colorSecondary">@color/brand_blue_accent</item>
+        <item name="android:colorAccent">@color/brand_blue_accent</item>
+
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">#80000000</item>
+
+        <item name="android:statusBarColor">@color/brand_blue_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.IBankingApp" parent="Base.Theme.IBankingApp" />
+
+    <style name="Theme.IBankingApp.Login" parent="Theme.IBankingApp">
+        <item name="android:windowBackground">@color/brand_background_dark</item>
+
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/brand_text_secondary</item>
+
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
 </resources>
