@@ -1,7 +1,5 @@
 package com.example.ibankingapp.ui.transfer;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,7 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
+
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.data.database.AppDatabase;
@@ -28,7 +26,6 @@ import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
@@ -64,7 +61,7 @@ public class TransferActivity extends AppCompatActivity {
         if (currentUser != null) {
             originalUid = currentUser.getUid();
         }
-        // Khởi tạo NotificationViewModel (tuân thủ MVVM)
+
         NotificationRepository notificationRepo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
         notificationViewModel = new NotificationViewModel(notificationRepo);
 
@@ -83,7 +80,6 @@ public class TransferActivity extends AppCompatActivity {
 
         String uid = user.getUid();
 
-        // Sử dụng ViewModel để lấy dữ liệu (tuân thủ MVVM)
         viewModel.getCustomer(uid).observe(this, customer -> {
             if (customer != null) {
                 currentCustomer = customer;
@@ -116,7 +112,7 @@ public class TransferActivity extends AppCompatActivity {
     }
 
     private void lookupRecipient(String accountNumber) {
-        // Sử dụng ViewModel để tìm kiếm (tuân thủ MVVM)
+
         viewModel.getCustomerByAccountNumber(accountNumber).observe(this, recipient -> {
             if (recipient != null && recipient.getFullName() != null) {
                 transferBinding.tvRecipientName.setText(recipient.getFullName());
@@ -261,30 +257,22 @@ public class TransferActivity extends AppCompatActivity {
         Log.d(TAG, "Dialog đã được show");
     }
 
-    // Xác thực OTP mà KHÔNG đăng nhập lại
-    // Chỉ kiểm tra credential có hợp lệ không
     private void verifyPhoneAuthCredential(PhoneAuthCredential credential) {
         Log.d(TAG, "verifyPhoneAuthCredential - Bắt đầu xác thực");
-
-        // Firebase đã verify OTP khi tạo credential từ verificationId và code
-        // Nếu credential được tạo thành công, nghĩa là OTP hợp lệ
-        // Ta không cần signIn để tránh mất thông tin user hiện tại
 
         Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "OTP xác thực thành công, tiếp tục thực hiện giao dịch");
 
-        // Thực hiện giao dịch với UID gốc đã lưu
         executeTransfer(pendingFrom, pendingTo, pendingAmount);
     }
 
     private void executeTransfer(String from, String to, double amount) {
-        // Sử dụng UID gốc đã lưu để tránh mất thông tin sau khi verify OTP
-        final String uid; // Đặt final để sử dụng trong lambda
+        final String uid;
 
         if (originalUid != null) {
             uid = originalUid;
         } else {
-            // Fallback: lấy từ current user nếu chưa lưu
+
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
                 Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
@@ -298,23 +286,24 @@ public class TransferActivity extends AppCompatActivity {
                     Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
 
                     // Tạo notification
+                    String formattedAmount = String.format("%,.0f", amount);
                     NotificationEntity notification = new NotificationEntity();
                     notification.setCustomerId(uid); // Sử dụng UID gốc
                     notification.setTitle("Chuyển tiền thành công");
-                    notification.setMessage("Bạn đã chuyển " + amount + "đ đến số tài khoản " + to);
+                    notification.setMessage("Bạn đã chuyển " + formattedAmount + " VND đến số tài khoản " + to);
                     notification.setTimestamp(System.currentTimeMillis());
                     notification.setRead(false);
 
-                    // Lưu vào Room qua ViewModel (tuân thủ MVVM)
+                    // Lưu vào Room
                     notificationViewModel.addNotification(notification);
 
-                    // Hiển thị Notification Android
+                    // Hiển thị Notification
                     NotificationHelper.send(
                             this,
                             notification.getTitle(),
                             notification.getMessage());
 
-                    // Chuyển sang màn hình thành công
+
                     Intent intent = new Intent(this, SuccessfullTransferActivity.class);
                     intent.putExtra("from", from);
                     intent.putExtra("to", to);

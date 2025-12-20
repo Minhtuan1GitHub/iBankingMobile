@@ -1,17 +1,23 @@
 package com.example.ibankingapp.ui.home;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
 import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
-import com.example.ibankingapp.ui.login.RegisterActivity;
+
+import com.example.ibankingapp.ui.login.LoginActivity;
 import com.example.ibankingapp.ui.maps.MapsActivity;
 import com.example.ibankingapp.ui.notification.NotificationActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
@@ -31,6 +37,7 @@ import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity {
+    private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
     private ActivityHomeBinding homeBinding;
     private CustomerViewModel customerViewModel;
     private boolean isBalanceVisible = true;
@@ -42,6 +49,9 @@ public class HomeActivity extends AppCompatActivity {
         homeBinding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(homeBinding.getRoot());
         String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+
+        // Yêu cầu quyền notification cho Android 13+ (API 33+)
+        requestNotificationPermission();
 
         // Khởi tạo CustomerViewModel
         customerViewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
@@ -69,15 +79,14 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
-            // Nếu chưa đăng nhập, chuyển về màn hình login
-            // startActivity(new Intent(this, LoginActivity.class));
-            // finish();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
             return;
         }
 
         String uid = currentUser.getUid();
 
-        // Lấy thông tin customer từ ViewModel
+        // Lấy thông tin customer
         customerViewModel.getCustomer(uid).observe(this, customer -> {
             if (customer != null) {
                 // Hiển thị tên người dùng
@@ -198,10 +207,47 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Yêu cầu quyền hiển thị notification cho Android 13+ (API 33+)
+     */
+    private void requestNotificationPermission() {
+        // Chỉ cần yêu cầu cho Android 13+ (API 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Yêu cầu quyền
+                ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    REQUEST_NOTIFICATION_PERMISSION
+                );
+            }
+        }
+        // Với Android 12 trở xuống, không cần request permission
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                android.util.Log.d("HomeActivity", "Notification permission GRANTED");
+            } else {
+                // Permission denied
+                android.util.Log.w("HomeActivity", "Notification permission DENIED");
+                android.widget.Toast.makeText(this,
+                    "Bạn sẽ không nhận được thông báo từ app",
+                    android.widget.Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh user info khi quay lại màn hình
         loadUserInfo();
     }
 }

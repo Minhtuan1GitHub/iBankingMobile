@@ -14,9 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.Api.CreateOrder;
+import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityTransactionIntentBinding;
+import com.example.ibankingapp.entity.NotificationEntity;
 import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.NotificationRepository;
+import com.example.ibankingapp.utils.NotificationHelper;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
+import com.example.ibankingapp.viewModel.notification.NotificationViewModel;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
@@ -29,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class TransactionIntentActivity extends AppCompatActivity {
     private ActivityTransactionIntentBinding binding;
     private CustomerViewModel viewModel;
+    private NotificationViewModel notificationViewModel;
     private String transactionType;
     private double amountDouble;
     private boolean vnpayPaymentSent = false;
@@ -45,7 +51,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         mAuth = FirebaseAuth.getInstance();
 
-        // Lưu UID ban đầu để tránh mất thông tin sau khi verify OTP
+        // Lưu UID ban đầu
         com.google.firebase.auth.FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null) {
             originalUid = firebaseUser.getUid();
@@ -53,6 +59,9 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         // Khởi tạo ViewModel
         viewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
+
+        NotificationRepository notificationRepo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
+        notificationViewModel = new NotificationViewModel(notificationRepo);
 
         // Load thông tin khách hàng hiện tại
         loadCurrentCustomer();
@@ -99,7 +108,6 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         String uid = firebaseUser.getUid();
 
-        // Sử dụng ViewModel để lấy dữ liệu (tuân thủ MVVM)
         viewModel.getCustomer(uid).observe(this, customer -> {
             if (customer != null) {
                 currentCustomer = customer;
@@ -197,11 +205,11 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
 
-        // Tiếp tục xử lý giao dịch với UID gốc
+        //xử lý giao dịch với UID gốc
         proceedToTransaction();
     }
 
-    // --- Xử lý gọi VNPay ---
+    // Xử lý gọi VNPay
     private void processDepositVNPay(int amount) {
         try {
             CreateOrder createOrder = new CreateOrder();
@@ -230,11 +238,12 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
     // Xử lý Rút tiền
     private void processInternalTransaction() {
-        // Sử dụng UID gốc đã lưu để tránh mất thông tin sau khi verify OTP
-        String uid = originalUid;
+        // Sử dụng UID gốc
+        final String uid;
 
-        if (uid == null) {
-
+        if (originalUid != null) {
+            uid = originalUid;
+        } else {
             com.google.firebase.auth.FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser == null) {
                 Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
@@ -249,6 +258,13 @@ public class TransactionIntentActivity extends AppCompatActivity {
         // Gọi ViewModel để xử lý withdraw
         viewModel.walletWithdraw(uid, amountDouble).observe(this, result -> {
             if (result.isSuccess()) {
+                // Tạo notification cho rút tiền thành công
+                createNotification(
+                    uid,
+                    "Rút tiền thành công",
+                    "Bạn đã rút " + String.format("%,.0f", amountDouble) + " VND từ tài khoản"
+                );
+
                 // Giao dịch thành công
                 navigateToSuccess();
             } else {
@@ -284,11 +300,11 @@ public class TransactionIntentActivity extends AppCompatActivity {
     
     // Xử lý nạp tiền thành công từ VNPay
     private void processDepositSuccess() {
+        final String uid;
 
-        String uid = originalUid;
-
-        if (uid == null) {
-
+        if (originalUid != null) {
+            uid = originalUid;
+        } else {
             com.google.firebase.auth.FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser == null) {
                 Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
@@ -300,6 +316,13 @@ public class TransactionIntentActivity extends AppCompatActivity {
         // Gọi ViewModel để xử lý deposit
         viewModel.walletDeposit(uid, amountDouble).observe(this, result -> {
             if (result.isSuccess()) {
+                // Tạo notification cho nạp tiền thành công
+                createNotification(
+                    uid,
+                    "Nạp tiền thành công",
+                    "Bạn đã nạp " + String.format("%,.0f", amountDouble) + " VND vào tài khoản qua VNPay"
+                );
+
                 // Giao dịch thành công
                 navigateToSuccess();
             } else {
@@ -307,6 +330,23 @@ public class TransactionIntentActivity extends AppCompatActivity {
                 Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Tạo notification cho giao dịch
+    private void createNotification(String customerId, String title, String message) {
+        // Tạo notification entity
+        NotificationEntity notification = new NotificationEntity();
+        notification.setCustomerId(customerId);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setTimestamp(System.currentTimeMillis());
+        notification.setRead(false);
+
+        // Lưu vào Room DB
+        notificationViewModel.addNotification(notification);
+
+        // Hiển thị notification Android (system notification)
+        NotificationHelper.send(this, title, message);
     }
 
     private void navigateToSuccess() {
