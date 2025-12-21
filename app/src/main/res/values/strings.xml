@@ -8,11 +8,13 @@
     <string name="transfer_desc">CHUYEN KHOAN</string>
     <string name="send_button_label">SAVING ACCOUNT</string>
 
-        <string-array name="saving_terms">
-            <item>3 tháng</item>
-            <item>6 tháng</item>
-            <item>12 tháng</item>
-        </string-array>
+    <string-array name="saving_terms">
+        <item>1 tháng</item>
+        <item>3 tháng</item>
+        <item>6 tháng</item>
+        <item>12 tháng</item>
+        <item>24 tháng</item>
+    </string-array>
 
         <string name="select_term_prompt">Chọn kỳ hạn</string>
 
