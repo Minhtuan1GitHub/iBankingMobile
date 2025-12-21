@@ -74,11 +74,11 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
     }
 
     private void displayReceiptInfo(double amount, long time, String name, String account, String desc) {
-        // Format tiền tệ
+        // tiền
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         String formattedAmount = formatter.format(amount);
 
-        // Format thời gian
+        //thời gian
         String formattedTime = android.text.format.DateFormat.format("HH:mm - dd/MM/yyyy", time).toString();
 
         // Gán dữ liệu vào View

@@ -40,7 +40,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
     private double amountDouble;
     private String recipientAccount; // Lưu STK người nhận
     private String recipientName;
-    private String transferContent;  // Lưu nội dung chuyển khoản
+    private String transferContent;
 
     private boolean vnpayPaymentSent = false;
     private FirebaseAuth mAuth;
@@ -63,9 +63,21 @@ public class TransactionIntentActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
         NotificationRepository notificationRepo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
         notificationViewModel = new NotificationViewModel(notificationRepo);
+        if (savedInstanceState != null) {
+            // Khôi phục dữ liệu nếu Activity bị destroy và tạo lại
+            transactionType = savedInstanceState.getString("transactionType");
+            amountDouble = savedInstanceState.getDouble("amountDouble");
+            recipientAccount = savedInstanceState.getString("recipientAccount");
+            recipientName = savedInstanceState.getString("recipientName");
+            transferContent = savedInstanceState.getString("transferContent");
+            vnpayPaymentSent = savedInstanceState.getBoolean("vnpayPaymentSent");
+
+            updateUI();
+        } else {
+            getIntentData();
+        }
 
         loadCurrentCustomer();
-        getIntentData();
 
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnPay.setOnClickListener(v -> {
@@ -75,6 +87,33 @@ public class TransactionIntentActivity extends AppCompatActivity {
                 startOtpProcess();
             }
         });
+    }
+    private void updateUI() {
+        binding.tvAmountValue.setText(String.format("%,.0f VND", amountDouble));
+
+        if ("TRANSFER".equals(transactionType)) {
+            binding.tvTransactionType.setText("Chuyển khoản");
+            binding.layoutRecipientName.setVisibility(View.VISIBLE);
+            binding.layoutRecipientAccount.setVisibility(View.VISIBLE);
+            binding.layoutContent.setVisibility(View.VISIBLE);
+
+            binding.tvRecipientNameValue.setText(recipientName);
+            binding.tvRecipientAccountValue.setText(recipientAccount);
+            binding.tvContentValue.setText(transferContent);
+
+        } else if ("DEPOSIT".equals(transactionType)) {
+            binding.tvTransactionType.setText("Nạp tiền qua VNPay");
+            binding.layoutRecipientName.setVisibility(View.GONE);
+            binding.layoutRecipientAccount.setVisibility(View.GONE);
+            binding.layoutContent.setVisibility(View.GONE);
+
+        } else if ("WITHDRAW".equals(transactionType)) {
+            binding.tvTransactionType.setText("Rút tiền về NH");
+            binding.layoutRecipientName.setVisibility(View.VISIBLE);
+            binding.tvRecipientNameValue.setText("Ngân hàng liên kết");
+            binding.layoutRecipientAccount.setVisibility(View.GONE);
+            binding.layoutContent.setVisibility(View.GONE);
+        }
     }
 
     private void getIntentData() {
@@ -97,8 +136,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
         }
 
         binding.tvAmountValue.setText(String.format("%,.0f VND", amountDouble));
-        binding.tvRecipientNameValue.setText(recipientName);
-        binding.tvRecipientAccountValue.setText(recipientAccount);
+        updateUI();
     }
 
     private void loadCurrentCustomer() {
@@ -107,7 +145,10 @@ public class TransactionIntentActivity extends AppCompatActivity {
             finish(); return;
         }
         viewModel.getCustomer(firebaseUser.getUid()).observe(this, customer -> {
-            if (customer != null) currentCustomer = customer;
+            if (customer != null){
+                currentCustomer = customer;
+                binding.tvSourceAccount.setText(customer.getAccountNumber());
+            }
         });
     }
 
@@ -303,6 +344,17 @@ public class TransactionIntentActivity extends AppCompatActivity {
         notification.setRead(false);
         notificationViewModel.addNotification(notification);
         NotificationHelper.send(this, title, message);
+    }
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Lưu lại các biến quan trọng
+        outState.putString("transactionType", transactionType);
+        outState.putDouble("amountDouble", amountDouble);
+        outState.putString("recipientAccount", recipientAccount);
+        outState.putString("recipientName", recipientName);
+        outState.putString("transferContent", transferContent);
+        outState.putBoolean("vnpayPaymentSent", vnpayPaymentSent);
     }
 
     private void navigateToSuccess() {

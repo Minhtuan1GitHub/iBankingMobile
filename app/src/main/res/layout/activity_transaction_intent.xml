@@ -48,7 +48,8 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginEnd="48dp"/> </LinearLayout>
+                android:layout_marginEnd="48dp"/>
+        </LinearLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -79,7 +80,6 @@
                         android:padding="24dp">
 
                         <TextView
-                            android:id="@+id/tvSuccessTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="THÔNG TIN GIAO DỊCH"
@@ -87,6 +87,7 @@
                             android:textSize="14sp"
                             android:gravity="center"
                             android:letterSpacing="0.1"
+                            android:textStyle="bold"
                             android:layout_marginBottom="24dp"/>
 
                         <TextView
@@ -127,17 +128,17 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Loại dịch vụ"
+                                android:text="Loại giao dịch"
                                 android:textColor="#757575" />
                             <TextView
-                                android:id="@+id/tvRecipientNameValue"
+                                android:id="@+id/tvTransactionType"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1.5"
                                 android:gravity="end"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                tools:text="Nạp tiền ví điện tử" />
+                                tools:text="Chuyển khoản" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -152,6 +153,52 @@
                                 android:text="Nguồn tiền"
                                 android:textColor="#757575" />
                             <TextView
+                                android:id="@+id/tvSourceAccount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:gravity="end"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                tools:text="1903..." />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutRecipientName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Người nhận"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvRecipientNameValue"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:gravity="end"
+                                android:textColor="@color/black"
+                                android:textStyle="bold"
+                                tools:text="NGUYEN VAN A" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutRecipientAccount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Tài khoản nhận"
+                                android:textColor="#757575" />
+                            <TextView
                                 android:id="@+id/tvRecipientAccountValue"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
@@ -159,7 +206,30 @@
                                 android:gravity="end"
                                 android:textColor="@color/black"
                                 android:textStyle="bold"
-                                tools:text="Tài khoản thanh toán" />
+                                tools:text="987654321" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/layoutContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="16dp">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Nội dung"
+                                android:textColor="#757575" />
+                            <TextView
+                                android:id="@+id/tvContentValue"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:gravity="end"
+                                android:textColor="@color/black"
+                                android:textStyle="italic"
+                                tools:text="Chuyen tien mua hang" />
                         </LinearLayout>
 
                         <LinearLayout
