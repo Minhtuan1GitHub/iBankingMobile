@@ -22,7 +22,7 @@ public class TransferActivity extends AppCompatActivity {
     private ActivityTransferBinding binding;
     private CustomerViewModel viewModel;
     private Customer currentCustomer;
-
+    private boolean isRecipientValid = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +62,9 @@ public class TransferActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                isRecipientValid = false;
+                binding.tvRecipientName.setVisibility(View.GONE);
+                binding.tvRecipientName.setText("");
                 String accountNumber = s.toString().trim();
                 if (accountNumber.isEmpty()) {
                     binding.tvRecipientName.setVisibility(View.GONE);
@@ -76,12 +79,15 @@ public class TransferActivity extends AppCompatActivity {
 
     private void lookupRecipient(String accountNumber) {
         viewModel.getCustomerByAccountNumber(accountNumber).observe(this, recipient -> {
-            if (recipient != null && recipient.getFullName() != null) {
+            String currentInput = binding.edtRecipientAccount.getText().toString().trim();
+            if (recipient != null && recipient.getFullName() != null && recipient.getAccountNumber().equals(currentInput)) {
                 binding.tvRecipientName.setText(recipient.getFullName().toUpperCase());
                 binding.tvRecipientName.setVisibility(View.VISIBLE);
                 binding.tilRecipientAccount.setError(null);
+                isRecipientValid = true;
             } else {
                 binding.tvRecipientName.setVisibility(View.GONE);
+                isRecipientValid = false;
             }
         });
     }
@@ -98,6 +104,10 @@ public class TransferActivity extends AppCompatActivity {
 
         if (toAccount.isEmpty()) {
             binding.tilRecipientAccount.setError("Vui lòng nhập tài khoản nhận");
+            return;
+        }
+        if (!isRecipientValid) {
+            binding.tilRecipientAccount.setError("Tài khoản người nhận không hợp lệ");
             return;
         }
 

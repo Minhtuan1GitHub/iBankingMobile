@@ -404,7 +404,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/transfer_desc"
-                android:src="@drawable/ic_transfer_money"
+                android:src="@drawable/ic_transfer_24"
                 app:backgroundTint="#0091EA"
                 app:borderWidth="0dp"
                 app:elevation="6dp"
