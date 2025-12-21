@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
+import com.example.ibankingapp.ui.account.checking.AccountInfoActivity;
 import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
 
 import com.example.ibankingapp.ui.login.LoginActivity;
@@ -140,7 +141,6 @@ public class HomeActivity extends AppCompatActivity {
                 double balance = customer.getBalance();
                 updateBalanceDisplay(balance);
 
-                // Có thể hiển thị thêm số tài khoản nếu cần
                 // String accountNumber = customer.getAccountNumber();
             }
         });
@@ -222,6 +222,10 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.btnBill.setOnClickListener(v -> {
             startActivity(new Intent(this, BillPaymentActivity.class));
+        });
+
+        homeBinding.btnCheck.setOnClickListener(v -> {
+            startActivity(new Intent(this, AccountInfoActivity.class));
         });
     }
 

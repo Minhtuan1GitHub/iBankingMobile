@@ -215,13 +215,13 @@
 
                             <androidx.constraintlayout.helper.widget.Flow
                                 android:id="@+id/flowCircle"
-                                android:padding="10dp"
+                                android:padding="8dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:constraint_referenced_ids="btnCheck,btnSave,btnMortgage,btnHistory"
                                 app:flow_horizontalStyle="spread"
                                 app:flow_wrapMode="none"
-                                app:flow_horizontalGap="12dp"
+                                app:flow_horizontalGap="10dp"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />

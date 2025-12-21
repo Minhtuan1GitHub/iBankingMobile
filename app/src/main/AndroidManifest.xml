@@ -70,6 +70,10 @@
             android:exported="true"
             >
         </activity>
+        <activity android:name=".ui.account.checking.AccountInfoActivity"
+            android:exported="true"
+            >
+        </activity>
         <activity
             android:name=".ui.customerList.CustomerDetailActivity"
             android:exported="true"

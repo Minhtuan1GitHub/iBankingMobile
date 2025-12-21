@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.example.ibankingapp.model.Customer;
+
 @Entity(tableName = "customers_db")
-public class CustomerEntity {
+public class CustomerEntity extends Customer {
 
     @PrimaryKey
     @NonNull
