@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -37,14 +38,14 @@ public class HomeActivity extends AppCompatActivity {
     private boolean isBalanceVisible = true;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         homeBinding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(homeBinding.getRoot());
+        String uid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Khởi tạo CustomerViewModel
         customerViewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
         customerViewModel.getImage(uid).observe(this, image -> {
             if (image != null) {
@@ -53,20 +54,14 @@ public class HomeActivity extends AppCompatActivity {
                 homeBinding.imgAvatar.setImageResource(R.drawable.ic_saving);
             }
         });
+        // Load thông tin người dùng
+        loadUserInfo();
 
-        homeBinding.fabTransfers.setOnClickListener(v -> {
-            // Khởi tạo CustomerViewModel
-            customerViewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
+        // Setup các button listeners
+        setupClickListeners();
 
-            // Load thông tin người dùng
-            loadUserInfo();
-
-            // Setup các button listeners
-            setupClickListeners();
-
-            // Setup notification badge
-            setupNotificationBadge();
-        });
+        // Setup notification badge
+        setupNotificationBadge();
     }
 
     /**
@@ -147,23 +142,12 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.navProfile.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingActivity.class));
+
         });
 
         homeBinding.navHistory.setOnClickListener(v -> {
             startActivity(new Intent(this, HistoryTransactionActivity.class));
         });
-        homeBinding.btnDeposit.setOnClickListener(v -> {
-            Intent intent = new Intent(this, DepositWithdrawActivity.class);
-            intent.putExtra("tab", 0); // 0 = Nạp
-            startActivity(intent);
-        });
-
-        homeBinding.btnWithdraw.setOnClickListener(v -> {
-            Intent intent = new Intent(this, DepositWithdrawActivity.class);
-            intent.putExtra("tab", 1); // 1 = Rút
-            startActivity(intent);
-        });
-
 
         homeBinding.btnDeposit.setOnClickListener(v -> {
             Intent intent = new Intent(this, DepositWithdrawActivity.class);
@@ -179,6 +163,7 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.navMap.setOnClickListener(v -> {
             startActivity(new Intent(this, MapsActivity.class));
+
         });
 
         homeBinding.btnNotify.setOnClickListener(v -> {
@@ -200,6 +185,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(new Intent(this, MortageAccountActivity.class));
         });
     }
+
     /**
      * Setup notification badge
      */
@@ -228,4 +214,3 @@ public class HomeActivity extends AppCompatActivity {
         loadUserInfo();
     }
 }
-

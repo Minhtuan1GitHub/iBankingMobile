@@ -276,6 +276,7 @@ public class CustomerRepository {
         }).addOnFailureListener(e->{
             Log.e("CustomerRepository", "Deposit failed", e);
         });
+
     }
 
     public void withdraw(String uid, double amoumt){
