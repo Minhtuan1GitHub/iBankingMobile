@@ -29,9 +29,8 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         boolean isSuccess = getIntent().getBooleanExtra("IS_SUCCESS", true);
         String message = getIntent().getStringExtra("MESSAGE");
 
-        String fromAccount = getIntent().getStringExtra("from");
-        String toAccount = getIntent().getStringExtra("to");
-        String recipientName = getIntent().getStringExtra("recipientName"); // Nhận tên người nhận
+        String recipientName = getIntent().getStringExtra("recipientName");
+        String toAccount = getIntent().getStringExtra("recipientAccount");
         double amount = getIntent().getDoubleExtra("amount", 0.0);
         long time = getIntent().getLongExtra("time", System.currentTimeMillis());
         String description = getIntent().getStringExtra("description");
@@ -111,7 +110,7 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         // Nút Về trang chủ
         binding.btnBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
@@ -125,7 +124,7 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
 
                 // Khởi tạo Intent về HomeActivity
                 Intent intent = new Intent(this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                 // Gửi tín hiệu để HomeActivity biết cần mở Fragment nào
                 if (type.equals("DEPOSIT")) {

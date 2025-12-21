@@ -74,6 +74,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
             updateUI();
         } else {
+            vnpayPaymentSent = false;
             getIntentData();
         }
 
@@ -174,7 +175,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
 
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(mAuth)
                 .setPhoneNumber(phoneNumber)
-                .setTimeout(60L, TimeUnit.SECONDS)
+                .setTimeout(30L, TimeUnit.SECONDS)
                 .setActivity(this)
                 .setCallbacks(mCallbacks)
                 .build();
@@ -214,8 +215,7 @@ public class TransactionIntentActivity extends AppCompatActivity {
         input.setTextSize(20);
         input.setFocusable(true);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        android.text.InputFilter.LengthFilter lengthFilter = new android.text.InputFilter.LengthFilter(6);
-        input.setFilters(new android.text.InputFilter[]{lengthFilter});
+        input.setFilters(new android.text.InputFilter[]{ new android.text.InputFilter.LengthFilter(6) });
         builder.setView(input);
 
         builder.setPositiveButton("Xác nhận", (dialog, which) -> {
@@ -320,7 +320,14 @@ public class TransactionIntentActivity extends AppCompatActivity {
     protected void onNewIntent(@androidx.annotation.NonNull Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        handlePaymentResult(intent);
+
+        Uri data = intent.getData();
+        if (data != null && data.toString().startsWith("ibanking://result")) {
+            handlePaymentResult(intent);
+        } else {
+            vnpayPaymentSent = false;
+            getIntentData();
+        }
     }
 
     private void handlePaymentResult(Intent intent) {
@@ -361,17 +368,18 @@ public class TransactionIntentActivity extends AppCompatActivity {
         Intent successIntent = new Intent(this, SuccessfullTransferActivity.class);
         successIntent.putExtra("IS_SUCCESS", true);
         successIntent.putExtra("amount", amountDouble);
-        successIntent.putExtra("to", recipientName);
-        successIntent.putExtra("from", recipientAccount); // Hoặc lấy từ currentCustomer
+        successIntent.putExtra("recipientName", recipientName);
+        successIntent.putExtra("recipientAccount", recipientAccount);
         successIntent.putExtra("time", System.currentTimeMillis());
         successIntent.putExtra("transactionType", transactionType);
 
         String desc = "Chuyển khoản";
         if ("DEPOSIT".equals(transactionType)) desc = "Nạp tiền qua VNPay";
-        else if ("WITHDRAW".equals(transactionType)) desc = "Rút tiền về ngân hàng";
+        else if ("WITHDRAW".equals(transactionType)) desc = "Rút tiền";
         else if (transferContent != null && !transferContent.isEmpty()) desc = transferContent;
 
         successIntent.putExtra("description", desc);
+        successIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(successIntent);
         finish();
