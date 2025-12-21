@@ -1,4 +1,4 @@
-package com.example.ibankingapp.ui.customerList; // Consider moving to ui.account.saving
+package com.example.ibankingapp.ui.account.saving;
 
 import android.os.Bundle;
 import android.text.Editable;

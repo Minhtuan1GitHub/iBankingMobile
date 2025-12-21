@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.entity.CustomerEntity;
+import com.example.ibankingapp.entity.PhoneEntity;
 import com.example.ibankingapp.entity.TransactionEntity;
 import com.example.ibankingapp.model.Customer;
 import com.google.firebase.auth.FirebaseAuth;
@@ -324,6 +325,22 @@ public class CustomerRepository {
 
         return data;
     }
+
+    public LiveData<PhoneEntity> getPhone(String phone){
+        MutableLiveData<PhoneEntity> data = new MutableLiveData<>();
+
+        firestore.collection("phones")
+                .document(phone)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()){
+                        data.setValue(doc.toObject(PhoneEntity.class));
+                    }
+                });
+
+        return data;
+    }
+
 
     public void deposit(String uid, double amount){
         FirebaseFirestore db = FirebaseFirestore.getInstance();

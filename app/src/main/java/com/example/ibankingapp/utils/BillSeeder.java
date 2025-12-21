@@ -28,7 +28,7 @@ public class BillSeeder {
         bill1.put("status", "Chưa thanh toán");
 
         Map<String, Object> bill2 = new HashMap<>();
-        bill2.put("customerCode", "001");
+        bill2.put("customerCode", "002");
         bill2.put("customerName", "Nguyen Van A");
         bill2.put("period", "03/2025");
         bill2.put("amount", 6);
@@ -36,7 +36,15 @@ public class BillSeeder {
         bill2.put("status", "Chưa thanh toán");
 
         Map<String, Object> bill3 = new HashMap<>();
-        bill3.put("customerCode", "002");
+        bill3.put("customerCode", "003");
+        bill3.put("customerName", "Tran Thi B");
+        bill3.put("period", "04/2025");
+        bill3.put("amount", 5);
+        bill3.put("provider", "EVN");
+        bill3.put("status", "Chưa thanh toán");
+
+        Map<String, Object> bill4 = new HashMap<>();
+        bill3.put("customerCode", "004");
         bill3.put("customerName", "Tran Thi B");
         bill3.put("period", "04/2025");
         bill3.put("amount", 5);
@@ -47,5 +55,6 @@ public class BillSeeder {
         db.collection("bills").document("EVN_001_042025").set(bill1);
         db.collection("bills").document("EVN_001_032025").set(bill2);
         db.collection("bills").document("EVN_002_042025").set(bill3);
+        db.collection("bills").document("EVN_003_042025").set(bill4);
     }
 }

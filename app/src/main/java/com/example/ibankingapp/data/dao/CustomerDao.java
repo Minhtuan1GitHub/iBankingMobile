@@ -71,4 +71,6 @@ public interface CustomerDao {
     CustomerEntity getCustomerByAccount(String accountNumber);
 
 
+    @Query("SELECT * FROM customers_db WHERE id = :uid LIMIT 1")
+    CustomerEntity getCustomerByUid(String uid);
 }

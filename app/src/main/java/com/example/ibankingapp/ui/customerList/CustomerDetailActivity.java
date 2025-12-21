@@ -10,10 +10,18 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityCustomerDetailBinding;
+import com.example.ibankingapp.entity.MortageEntity;
 import com.example.ibankingapp.entity.SavingAccountEntity;
 import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.CustomerRepository;
+import com.example.ibankingapp.repository.MortageRepository;
 import com.example.ibankingapp.repository.SavingAccountRepository;
+import com.example.ibankingapp.repository.TransactionRepository;
+import com.example.ibankingapp.ui.account.mortage.CreateMortageAccountActivity;
+import com.example.ibankingapp.ui.account.saving.CreateSavingAccountActivity;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
+import com.example.ibankingapp.viewModel.customer.MortageViewModel;
+import com.example.ibankingapp.viewModel.customer.MortageViewModelFactory;
 import com.example.ibankingapp.viewModel.customer.SavingAccountViewModel;
 import com.example.ibankingapp.viewModel.customer.SavingAccountViewModelFactory;
 
@@ -24,6 +32,10 @@ public class CustomerDetailActivity extends AppCompatActivity {
     private Customer currentCustomer;
     private SavingAccountEntity currentSavingAccount;
     private SavingAccountViewModel viewModelSavingAccount;
+    private MortageViewModel viewModelMortage;
+    private MortageEntity currentMortage;
+
+
 
 
 
@@ -36,9 +48,17 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
         viewModelCustomerDetail = new ViewModelProvider(this).get(CustomerViewModel.class);
 
+
+
         AppDatabase db = AppDatabase.getInstance(this);
+        MortageRepository repoMortage = new MortageRepository(db.mortageDao(), db.mortagePaymentDao(), db.customerDao(), db.transactionDao(), new TransactionRepository(db.transactionDao()), new CustomerRepository(this));
+        MortageViewModelFactory factory = new MortageViewModelFactory(repoMortage, new CustomerRepository(this));
         SavingAccountRepository repo = new SavingAccountRepository(db.savingAccountDao());
         SavingAccountViewModelFactory fac = new SavingAccountViewModelFactory(repo);
+        viewModelMortage = new ViewModelProvider(this, factory).get(MortageViewModel.class);
+
+
+
         viewModelSavingAccount = new ViewModelProvider(this, fac).get(SavingAccountViewModel.class);
 
 
@@ -72,6 +92,16 @@ public class CustomerDetailActivity extends AppCompatActivity {
                             customerDetailBinding.createSavingAccount.setText("ĐÃ CÓ TÀI KHOẢN TIẾT KIỆM");
                         }
                     });
+
+            viewModelCustomerDetail
+                    .hasMortageAccount(customer.getId())
+                            .observe(this, hasAccount -> {
+                                        if (hasAccount != null && hasAccount) {
+                                            customerDetailBinding.btnMortgage.setEnabled(false);
+                                            customerDetailBinding.btnMortgage.setAlpha(0.4f);
+                                            customerDetailBinding.btnMortgage.setText("ĐÃ CÓ TÀI KHOẢN KHÁCH HÀNG");
+                                        }
+                                    });
             viewModelSavingAccount.syncFromFirestore(customer.getId());
             viewModelSavingAccount
                     .getSavingAccounts(customer.getId())
@@ -81,18 +111,10 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
                         if (savingAccount == null) {
                             // Chưa có tài khoản tiết kiệm
-                            customerDetailBinding.tvSavingAccountHeader.setVisibility(View.GONE);
-                            customerDetailBinding.tvAccountTypeLabel1.setVisibility(View.GONE);
-                            customerDetailBinding.tvBalanceLabel1.setVisibility(View.GONE);
-                            customerDetailBinding.tvLaiSuat.setVisibility(View.GONE);
-                            customerDetailBinding.tvKyHan.setVisibility(View.GONE);
-
-                            customerDetailBinding.tbBalance1.setVisibility(View.GONE);
-                            customerDetailBinding.edtLaiSuat.setVisibility(View.GONE);
-                            customerDetailBinding.edtKyHan.setVisibility(View.GONE);
                             customerDetailBinding.createSavingAccount.setVisibility(View.VISIBLE);
                             return;
                         }
+                        customerDetailBinding.layoutSaving.setVisibility(View.VISIBLE);
 
                         customerDetailBinding.tbBalance1.setText(
                                 String.valueOf(savingAccount.getBalance())
@@ -105,6 +127,23 @@ public class CustomerDetailActivity extends AppCompatActivity {
                         );
 
                     });
+            viewModelMortage.syncFromFirestore(customer.getId());
+            viewModelMortage.getMortageByCustomerId(customer.getId())
+                    .observe(this, mortage -> {
+                        currentMortage = mortage;
+
+                        if (mortage != null) {
+                            customerDetailBinding.btnMortgage.setVisibility(View.GONE); // ẩn nút tạo mortgage
+                            customerDetailBinding.edtS.setText(String.valueOf(mortage.getPrincipal()));
+                            customerDetailBinding.edtR.setText(String.valueOf(mortage.getInterestRate()));
+                            customerDetailBinding.edtN.setText(String.valueOf(mortage.getTermMonths()));
+                        } else {
+                            customerDetailBinding.btnMortgage.setVisibility(View.VISIBLE);
+                        }
+                    });
+
+
+
 
 
         });
@@ -113,6 +152,8 @@ public class CustomerDetailActivity extends AppCompatActivity {
         customerDetailBinding.btnSave.setOnClickListener(v->updateCustomer());
 
         customerDetailBinding.createSavingAccount.setOnClickListener(v->createSavingAccount());
+        customerDetailBinding.btnMortgage.setOnClickListener(v->createMortageAccount());
+
 
 
     }
@@ -145,6 +186,21 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
         }
 
+        if (currentMortage != null) {
+            try {
+                currentMortage.setPrincipal(Double.parseDouble(customerDetailBinding.edtS.getText().toString()));
+            } catch (NumberFormatException ignored) {}
+            try {
+                currentMortage.setInterestRate(Double.parseDouble(customerDetailBinding.edtR.getText().toString()));
+            } catch (NumberFormatException ignored) {}
+            try {
+                currentMortage.setTermMonths(Integer.parseInt(customerDetailBinding.edtN.getText().toString()));
+            } catch (NumberFormatException ignored) {}
+
+            viewModelMortage.updateMortage(currentMortage);
+        }
+
+
 
 
 
@@ -154,6 +210,12 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
     private void createSavingAccount() {
         Intent intent = new Intent(this, CreateSavingAccountActivity.class);
+        intent.putExtra("customerId", currentCustomer.getId());
+        startActivity(intent);
+    }
+
+    private void createMortageAccount(){
+        Intent intent = new Intent(this, CreateMortageAccountActivity.class);
         intent.putExtra("customerId", currentCustomer.getId());
         startActivity(intent);
     }

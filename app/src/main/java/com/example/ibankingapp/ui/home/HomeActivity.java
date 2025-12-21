@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.ibankingapp.R;
 import com.example.ibankingapp.databinding.ActivityHomeBinding;
 import com.example.ibankingapp.ui.account.checking.AccountInfoActivity;
+import com.example.ibankingapp.ui.account.mortage.MortageAccountActivity;
 import com.example.ibankingapp.ui.account.saving.SavingAccountActivity;
 
 import com.example.ibankingapp.ui.login.LoginActivity;
@@ -24,6 +25,7 @@ import com.example.ibankingapp.ui.notification.NotificationActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
 import com.example.ibankingapp.ui.transfer.DepositWithdrawActivity;
 import com.example.ibankingapp.ui.transfer.TransferActivity;
+import com.example.ibankingapp.ui.transfer.topup.TopupActivity;
 import com.example.ibankingapp.ui.transfer.transaction.BillPaymentActivity;
 import com.example.ibankingapp.ui.transfer.transaction.HistoryTransactionActivity;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
@@ -71,45 +73,6 @@ public class HomeActivity extends AppCompatActivity {
 
         // Setup notification badge
         setupNotificationBadge();
-
-        handleNavigationIntent(getIntent());
-    }
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleNavigationIntent(intent);
-    }
-
-    private void handleNavigationIntent(Intent intent) {
-        if (intent != null) {
-            String destination = intent.getStringExtra("NAVIGATE_TO");
-            if (destination != null) {
-                switch (destination) {
-                    case "DEPOSIT":
-
-                        Intent depositIntent = new Intent(this, DepositWithdrawActivity.class);
-                        depositIntent.putExtra("tab", 0);
-                        depositIntent.putExtra("NAVIGATE_TO", "DEPOSIT"); // Gửi thêm để chắc chắn
-                        startActivity(depositIntent);
-                        break;
-
-                    case "WITHDRAW":
-
-                        Intent withdrawIntent = new Intent(this, DepositWithdrawActivity.class);
-                        withdrawIntent.putExtra("tab", 1);
-                        withdrawIntent.putExtra("NAVIGATE_TO", "WITHDRAW");
-                        startActivity(withdrawIntent);
-                        break;
-
-                    case "TRANSFER":
-                        // Mở màn hình Chuyển khoản
-                        Intent transferIntent = new Intent(this, TransferActivity.class);
-                        startActivity(transferIntent);
-                        break;
-                }
-            }
-        }
     }
 
     /**
@@ -226,6 +189,13 @@ public class HomeActivity extends AppCompatActivity {
 
         homeBinding.btnCheck.setOnClickListener(v -> {
             startActivity(new Intent(this, AccountInfoActivity.class));
+        });
+
+        homeBinding.btnPhone.setOnClickListener(v->{
+            startActivity(new Intent(this, TopupActivity.class));
+        });
+        homeBinding.btnMortgage.setOnClickListener(v->{
+            startActivity(new Intent(this, MortageAccountActivity.class));
         });
     }
 

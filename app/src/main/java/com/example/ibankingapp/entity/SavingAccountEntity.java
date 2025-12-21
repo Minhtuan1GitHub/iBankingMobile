@@ -37,13 +37,6 @@ public class SavingAccountEntity {
 
     public SavingAccountEntity(){}
 
-//    public int getLocalId() {
-//        return localId;
-//    }
-//
-//    public void setLocalId(int localId) {
-//        this.localId = localId;
-//    }
 
     public String getFirebaseId() {
         return firebaseId;
