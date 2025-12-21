@@ -84,17 +84,6 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     private void saveCustomerDetails(String uid, String fullname, String accountNum, String accountType, double balance, String phone, String otp) {
-//        storeManager.saveCustomerIn4(uid, fullname, accountNum, accountType, balance, phone, otp,  saveTask -> {
-//            if (saveTask.isSuccessful()) {
-//                Toast.makeText(this, "Tạo tài khoản thành công!", Toast.LENGTH_LONG).show();
-//                // TODO: Add logic to navigate to the next screen (e.g., Login or Admin Dashboard)
-//                // finish();
-//                startActivity(new Intent(this, AdminActivity.class));
-//            } else {
-//                Toast.makeText(this, "Lỗi lưu thông tin khách hàng: " + saveTask.getException().getMessage(), Toast.LENGTH_LONG).show();
-//
-//            }
-//        });
         CustomerEntity customer = new CustomerEntity();
         customer.setId(uid);
         customer.setFullName(fullname);

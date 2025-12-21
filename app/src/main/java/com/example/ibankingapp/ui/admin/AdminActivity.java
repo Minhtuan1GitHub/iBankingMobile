@@ -6,10 +6,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityAdminBinding;
 import com.example.ibankingapp.ui.customerList.CustomerListActivity;
+import com.example.ibankingapp.ui.login.LoginActivity;
 import com.example.ibankingapp.ui.login.RegisterActivity;
 import com.example.ibankingapp.ui.setting.SettingActivity;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.concurrent.Executors;
 
 public class AdminActivity extends AppCompatActivity {
     private ActivityAdminBinding adminBinding;
@@ -36,7 +41,15 @@ public class AdminActivity extends AppCompatActivity {
         });
 
         adminBinding.cardSettings.setOnClickListener(v -> {
-            startActivity(new Intent(this, SettingActivity.class));
+            FirebaseAuth.getInstance().signOut();
+            AppDatabase db = AppDatabase.getInstance(this);
+            Executors.newSingleThreadExecutor().execute(() -> {
+                db.customerDao().clearAll();
+            });
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Xóa stack để không back lại được
+            startActivity(intent);
+            finish();
         });
     }
 }

@@ -211,14 +211,6 @@
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Quay lại đăng nhập"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:textColor="@color/brand_blue_accent"
-                    android:textStyle="bold"/>
 
             </LinearLayout>
 
