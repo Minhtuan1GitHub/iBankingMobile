@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,22 +18,34 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityTransferBinding;
+import com.example.ibankingapp.entity.BankEntity;
 import com.example.ibankingapp.entity.NotificationEntity;
 import com.example.ibankingapp.model.Customer;
 import com.example.ibankingapp.repository.NotificationRepository;
 import com.example.ibankingapp.ui.home.HomeActivity;
 import com.example.ibankingapp.utils.NotificationHelper;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
+import com.example.ibankingapp.viewModel.customer.InterbankTransferViewModel;
+import com.example.ibankingapp.viewModel.customer.InterbankTransferViewModelFactory;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransferActivity extends AppCompatActivity {
 
     private ActivityTransferBinding transferBinding;
     private Customer currentCustomer;
     private CustomerViewModel viewModel;
+    private InterbankTransferViewModel interbankVM;
+    private List<BankEntity> bankList = new ArrayList<>();
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +53,23 @@ public class TransferActivity extends AppCompatActivity {
         transferBinding = ActivityTransferBinding.inflate(getLayoutInflater());
         setContentView(transferBinding.getRoot());
 
+
+        interbankVM = new ViewModelProvider(
+                this,
+                new InterbankTransferViewModelFactory(this)
+        ).get(InterbankTransferViewModel.class);
+
         viewModel = new ViewModelProvider(this).get(CustomerViewModel.class);
 
         transferBinding.fabHome.setOnClickListener(v -> {
             startActivity(new Intent(this, HomeActivity.class));
         });
 
+
         loadCurrentCustomer();
         setupReceiverLookup();
+        setupBankSpinner();
+
         transferBinding.btnTransfer.setOnClickListener(v -> clickTransfer());
         transferBinding.tabTransferType.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -79,7 +101,14 @@ public class TransferActivity extends AppCompatActivity {
             }
         });
     }
-    private void clearFields(){}
+    private void clearFields() {
+        transferBinding.edtRecipientAccount.setText("");
+        transferBinding.edtAmount.setText("");
+        transferBinding.edtDescription.setText("");
+        transferBinding.spinnerBank.setText("");
+        transferBinding.tvRecipientName.setVisibility(View.GONE);
+    }
+
 
     private void loadCurrentCustomer() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -112,15 +141,55 @@ public class TransferActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String accountNumber = s.toString().trim();
+
                 if (accountNumber.isEmpty()) {
-                    transferBinding.tvRecipientName.setText("No recipient found");
                     transferBinding.tvRecipientName.setVisibility(View.GONE);
                     return;
                 }
-                lookupRecipient(accountNumber);
+
+                boolean isInterbank =
+                        transferBinding.tabTransferType.getSelectedTabPosition() == 1;
+
+                if (isInterbank) {
+                    lookupInterbankRecipient(accountNumber);
+                } else {
+                    lookupRecipient(accountNumber); // nội bộ
+                }
             }
+
         });
     }
+    private void lookupInterbankRecipient(String bankNumber) {
+        String bankName = transferBinding.spinnerBank.getText().toString().trim();
+
+        if (bankName.isEmpty()) {
+            transferBinding.tvRecipientName.setText("Vui lòng chọn ngân hàng");
+            transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        // DEMO: bankCode = bankName
+        // (sau này map VCB, ACB, BIDV...)
+        String bankCode = (String) transferBinding.spinnerBank.getTag();
+
+        if (bankCode == null) {
+            transferBinding.tvRecipientName.setText("Vui lòng chọn ngân hàng");
+            transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+            return;
+        }
+
+
+        interbankVM.getInterbankAccount(bankCode, bankNumber)
+                .observe(this, account -> {
+                    if (account != null) {
+                        transferBinding.tvRecipientName.setText(account.getFullName());
+                    } else {
+                        transferBinding.tvRecipientName.setText("Không tìm thấy tài khoản liên ngân hàng");
+                    }
+                    transferBinding.tvRecipientName.setVisibility(View.VISIBLE);
+                });
+    }
+
 
     private void lookupRecipient(String accountNumber) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -207,43 +276,112 @@ public class TransferActivity extends AppCompatActivity {
 
         builder.show();
     }
-
     private void executeTransfer(String from, String to, double amount) {
-        viewModel.transfer(from, to, amount).observe(this, success -> {
-                if (success != null && success) {
-                    Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
-                    NotificationEntity notification = new NotificationEntity();
-                    notification.setCustomerId(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                    notification.setTitle("Chuyển tiền thành công");
-                    notification.setMessage("Bạn đã chuyển " + amount + "đ đến số tài khoản " + to);
-                    notification.setTimestamp(System.currentTimeMillis());
-                    notification.setRead(false); // chưa đọc
 
-                    // Lưu vào Room
-                    NotificationRepository repo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
-                    repo.addNotification(notification);
+        boolean isInterbank =
+                transferBinding.tabTransferType.getSelectedTabPosition() == 1;
 
-                    // Hiển thị Notification Android
-                    NotificationHelper.send(
-                            this,
-                            notification.getTitle(),
-                            notification.getMessage());
-
-
-                    //startActivity(new Intent(this, SuccessfullTransferActivity.class));
-                    Intent intent = new Intent(this, SuccessfullTransferActivity.class);
-                    intent.putExtra("from", from);
-                    intent.putExtra("to", to);
-                    intent.putExtra("amount", amount);
-                    intent.putExtra("time", System.currentTimeMillis());
-                    intent.putExtra("name", currentCustomer.getFullName());
-                    startActivity(intent);
-
-                } else {
-                    Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
-                }
-            });
+        if (isInterbank) {
+            executeInterbankTransfer(from, to, amount);
+        } else {
+            executeInternalTransfer(from, to, amount);
+        }
     }
+    private void executeInternalTransfer(String from, String to, double amount) {
+        viewModel.transfer(from, to, amount).observe(this, success -> {
+            if (Boolean.TRUE.equals(success)) {
+                onTransferSuccess(to, amount);
+            } else {
+                Toast.makeText(this, "Chuyển tiền thất bại!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void executeInterbankTransfer(String from, String to, double amount) {
+
+        String bankCode = (String) transferBinding.spinnerBank.getTag();
+
+        if (bankCode == null) {
+            Toast.makeText(this, "Vui lòng chọn ngân hàng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        interbankVM.transferInterbank(
+                from,
+                bankCode + "_" + to,
+                amount
+        ).observe(this, success -> {
+            if (Boolean.TRUE.equals(success)) {
+                onTransferSuccess(to, amount);
+            } else {
+                Toast.makeText(this,
+                        "Chuyển khoản liên ngân hàng thất bại",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void onTransferSuccess(String to, double amount) {
+
+        Toast.makeText(this, "Chuyển tiền thành công!", Toast.LENGTH_SHORT).show();
+
+        NotificationEntity notification = new NotificationEntity();
+        notification.setCustomerId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        notification.setTitle("Chuyển tiền thành công");
+        notification.setMessage("Bạn đã chuyển " + amount + "đ đến " + to);
+        notification.setTimestamp(System.currentTimeMillis());
+        notification.setRead(false);
+
+        NotificationRepository repo =
+                new NotificationRepository(
+                        AppDatabase.getInstance(this).notificationDao()
+                );
+        repo.addNotification(notification);
+
+        NotificationHelper.send(
+                this,
+                notification.getTitle(),
+                notification.getMessage()
+        );
+
+        Intent intent = new Intent(this, SuccessfullTransferActivity.class);
+        intent.putExtra("from", currentCustomer.getAccountNumber());
+        intent.putExtra("to", to);
+        intent.putExtra("amount", amount);
+        intent.putExtra("time", System.currentTimeMillis());
+        intent.putExtra("name", currentCustomer.getFullName());
+        startActivity(intent);
+    }
+
+
+
+
+
+    private void setupBankSpinner() {
+        interbankVM.getBanks().observe(this, banks -> {
+            if (banks == null) return;
+
+            bankList = banks;
+
+            List<String> bankNames = new ArrayList<>();
+            for (BankEntity bank : banks) {
+                bankNames.add(bank.getBankName()); // field name trong Firestore
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    bankNames
+            );
+
+            transferBinding.spinnerBank.setAdapter(adapter);
+        });
+        transferBinding.spinnerBank.setOnItemClickListener((parent, view, position, id) -> {
+            BankEntity selectedBank = bankList.get(position);
+            transferBinding.spinnerBank.setTag(selectedBank.getBankCode()); // ⭐ KEY LINE
+        });
+
+
+    }
+
 
 
 }

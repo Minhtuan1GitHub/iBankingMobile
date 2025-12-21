@@ -191,7 +191,7 @@ public class CustomerRepository {
     }
 
     public boolean transfer(String from, String to, double amount){
-        //return customerDao.transfer(from, to, amount);
+
 
 
         boolean success = customerDao.transfer(from, to, amount);
