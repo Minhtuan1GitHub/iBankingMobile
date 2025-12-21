@@ -21,6 +21,6 @@ public interface NotificationDao {
     @Query("SELECT COUNT(*) FROM notifications  WHERE customerId = :customerId AND  isRead = 0")
     LiveData<Integer> getUnreadNotificationsCount(String customerId);
 
-    @Query("UPDATE notifications SET isRead = 1  ")
-    void markNotificationsAsRead();
+    @Query("UPDATE notifications SET isRead = 1 WHERE customerId = :customerId AND isRead = 0")
+    void markNotificationsAsRead(String customerId);
 }

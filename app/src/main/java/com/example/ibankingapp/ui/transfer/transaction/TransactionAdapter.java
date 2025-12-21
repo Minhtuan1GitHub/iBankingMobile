@@ -1,5 +1,6 @@
 package com.example.ibankingapp.ui.transfer.transaction;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,30 +11,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ibankingapp.R;
-import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.utils.TransactionDisplay;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
-    List<TransactionDisplay> transactions = new ArrayList<>();
-    OnTransactionClickListener listener;
-
-    private String currentAccount;
+    private List<TransactionDisplay> transactions = new ArrayList<>();
+    private OnTransactionClickListener listener;
+    private final String currentAccount;
 
     public TransactionAdapter(String currentAccount) {
         this.currentAccount = currentAccount;
     }
-
-    public TransactionAdapter() {
-        this.currentAccount = null;
-    }
-
 
     public interface OnTransactionClickListener {
         void onClick(TransactionDisplay transaction);
@@ -62,18 +57,16 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
 
     @Override
     public int getItemCount() {
-        return transactions.size();
+        return transactions != null ? transactions.size() : 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRecipientName, tvRecipientAccount, tvTransactionTime, tvTransactionAmount;
+        TextView tvRecipientName, tvTransactionTime, tvTransactionAmount;
         ImageView ivTransactionIcon;
 
         public ViewHolder(@NonNull View itemView, TransactionAdapter adapter) {
             super(itemView);
-
             tvRecipientName = itemView.findViewById(R.id.tvRecipientName);
-            tvRecipientAccount = itemView.findViewById(R.id.tvRecipientAccount);
             tvTransactionTime = itemView.findViewById(R.id.tvTransactionTime);
             tvTransactionAmount = itemView.findViewById(R.id.tvTransactionAmount);
             ivTransactionIcon = itemView.findViewById(R.id.ivTransactionIcon);
@@ -87,28 +80,27 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         }
 
         public void bind(TransactionDisplay t) {
-
-
+            if (t == null || t.getTransaction() == null) return;
 
             tvRecipientName.setText(t.getRecipientName());
-            tvRecipientAccount.setText("STK: " + t.getTransaction().getToAcountNumber());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd/MM/yyyy", Locale.getDefault());
-            tvTransactionTime.setText(sdf.format(t.getTransaction().getTimestamp()));
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm - dd/MM/yyyy", Locale.getDefault());
+            tvTransactionTime.setText(sdf.format(new Date(t.getTransaction().getTimestamp())));
 
-            NumberFormat money = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            tvTransactionAmount.setText(money.format(t.getTransaction().getAmount()));
+            NumberFormat moneyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            String amountStr = moneyFormat.format(t.getTransaction().getAmount());
 
-            if (t.getTransaction().getToAcountNumber().equals(currentAccount)){
-                tvTransactionAmount.setTextColor(itemView.getResources().getColor(R.color.green));
-            }else {
-                tvTransactionAmount.setTextColor(itemView.getResources().getColor(R.color.red));
+            boolean isMoneyIn = t.getTransaction().getToAccountNumber().equals(currentAccount);
 
+            if (isMoneyIn) {
+                tvTransactionAmount.setText("+" + amountStr);
+                tvTransactionAmount.setTextColor(Color.parseColor("#4CAF50")); // Xanh
+                ivTransactionIcon.setImageResource(R.drawable.ic_wallet);
+            } else {
+                tvTransactionAmount.setText("-" + amountStr);
+                tvTransactionAmount.setTextColor(Color.parseColor("#F44336")); // Đỏ
+                ivTransactionIcon.setImageResource(R.drawable.ic_transfer_24);
             }
-
-
-
-            ivTransactionIcon.setImageResource(R.drawable.ic_send_money_24);
         }
     }
 }

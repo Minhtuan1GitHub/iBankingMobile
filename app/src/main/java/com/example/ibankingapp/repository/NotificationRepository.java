@@ -24,8 +24,8 @@ public class NotificationRepository {
     public LiveData<Integer> getUnreadCount(String customerId){
         return dao.getUnreadNotificationsCount(customerId);
     }
-    public void markAsRead(){
-        Executors.newSingleThreadExecutor().execute(dao::markNotificationsAsRead);
+    public void markAsRead(String customerId){
+        Executors.newSingleThreadExecutor().execute(() -> dao.markNotificationsAsRead(customerId));
     }
 
 

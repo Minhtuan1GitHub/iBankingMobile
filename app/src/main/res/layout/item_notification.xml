@@ -1,27 +1,85 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
-    <TextView
-        android:id="@+id/txtTitle"
-        android:text="Thông báo"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/txtMessage"
-        android:text="Nội dung..."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/ivNotiIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_button"
+            android:backgroundTint="#E3F2FD"
+            android:padding="8dp"
+            android:src="@drawable/ic_notify_2"
+            app:tint="#005792"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="Notification Icon" />
 
-    <TextView
-        android:id="@+id/txtTime"
-        android:text="10:40 12/12/2025"
-        android:textSize="12sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvNotiTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@+id/ivNotiIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ivUnreadDot"
+            tools:text="Biến động số dư" />
+
+        <TextView
+            android:id="@+id/tvNotiMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:maxLines="3"
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="@+id/tvNotiTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvNotiTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Tài khoản 1903... nhận 500,000 VND từ NGUYEN VAN A lúc 10:30 01/12/2025." />
+
+        <TextView
+            android:id="@+id/tvNotiTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#BDBDBD"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="@+id/tvNotiTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvNotiMessage"
+            tools:text="2 phút trước" />
+
+        <View
+            android:id="@+id/ivUnreadDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/circle_button"
+            android:backgroundTint="#F44336"
+            app:layout_constraintTop_toTopOf="@+id/tvNotiTitle"
+            app:layout_constraintBottom_toBottomOf="@+id/tvNotiTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="visible"
+            tools:visibility="visible"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

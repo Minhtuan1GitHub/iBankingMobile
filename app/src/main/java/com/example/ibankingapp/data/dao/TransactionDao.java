@@ -18,8 +18,8 @@ public interface TransactionDao {
     @Query("" +
             "SELECT * " +
             "FROM transactions_db " +
-            "WHERE fromAcountNumber = :accountNumber " +
-            "OR toAcountNumber = :accountNumber " +
+            "WHERE fromAccountNumber = :accountNumber " +
+            "OR toAccountNumber = :accountNumber " +
             "ORDER BY timestamp " +
             "DESC")
     List<TransactionEntity> getAllTransactions(String accountNumber);

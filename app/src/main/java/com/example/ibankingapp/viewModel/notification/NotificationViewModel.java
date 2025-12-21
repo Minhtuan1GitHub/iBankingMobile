@@ -23,8 +23,8 @@ public class NotificationViewModel extends ViewModel {
         return repo.getUnreadCount(customerId);
     }
 
-    public void markAsRead(){
-        repo.markAsRead();
+    public void markAsRead(String customerId){
+        repo.markAsRead(customerId);
     }
 
     // Thêm notification mới (tuân thủ MVVM)

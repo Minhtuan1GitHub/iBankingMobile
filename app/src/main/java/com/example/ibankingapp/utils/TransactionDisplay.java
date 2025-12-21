@@ -4,8 +4,7 @@ import com.example.ibankingapp.entity.TransactionEntity;
 
 import java.io.Serializable;
 
-public class TransactionDisplay implements Serializable
-    {
+public class TransactionDisplay implements Serializable {
     private final TransactionEntity transaction;
     private final String recipientName;
 
@@ -19,8 +18,6 @@ public class TransactionDisplay implements Serializable
     }
 
     public String getRecipientName() {
-        return recipientName;
+        return recipientName != null ? recipientName : "Người nhận không xác định";
     }
-
-
 }

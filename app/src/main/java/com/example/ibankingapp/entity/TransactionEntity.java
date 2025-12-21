@@ -13,8 +13,8 @@ public class TransactionEntity implements Serializable {
     @NonNull
     private String id;
 
-    private String fromAcountNumber;
-    private String toAcountNumber;
+    private String fromAccountNumber;
+    private String toAccountNumber;
     private double amount;
     private long timestamp;
     private String status;
@@ -49,20 +49,20 @@ public class TransactionEntity implements Serializable {
         this.id = id;
     }
 
-    public String getFromAcountNumber() {
-        return fromAcountNumber;
+    public String getFromAccountNumber() {
+        return fromAccountNumber;
     }
 
-    public void setFromAcountNumber(String fromAcountNumber) {
-        this.fromAcountNumber = fromAcountNumber;
+    public void setFromAccountNumber(String fromAccountNumber) {
+        this.fromAccountNumber = fromAccountNumber;
     }
 
-    public String getToAcountNumber() {
-        return toAcountNumber;
+    public String getToAccountNumber() {
+        return toAccountNumber;
     }
 
-    public void setToAcountNumber(String toAcountNumber) {
-        this.toAcountNumber = toAcountNumber;
+    public void setToAccountNumber(String toAccountNumber) {
+        this.toAccountNumber = toAccountNumber;
     }
 
     public double getAmount() {

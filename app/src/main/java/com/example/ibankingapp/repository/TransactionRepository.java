@@ -33,19 +33,19 @@ public class TransactionRepository {
 
             TransactionEntity log = new TransactionEntity();
             log.setId(id);
-            log.setFromAcountNumber(from);
-            log.setToAcountNumber(to);
+            // Dùng setter mới
+            log.setFromAccountNumber(from);
+            log.setToAccountNumber(to);
             log.setAmount(amount);
             log.setTimestamp(System.currentTimeMillis());
             log.setStatus(status);
             log.setType(type);
             log.setNote(note);
 
-
-            //room
+            // Room
             transactionDao.insert(log);
 
-            // firestore
+            // Firestore
             firestore.collection("transactions")
                     .document(id)
                     .set(log)

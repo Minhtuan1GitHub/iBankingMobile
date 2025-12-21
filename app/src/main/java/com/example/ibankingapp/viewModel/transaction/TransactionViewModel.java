@@ -43,8 +43,8 @@ public class TransactionViewModel extends AndroidViewModel {
         repository.getAllTransactions(accountNumber, transactionList -> {
             List<TransactionDisplay> displayList = new ArrayList<>();
             for (TransactionEntity t : transactionList) {
-                CustomerEntity c = customerRepository.getCustomerByAccount(t.getToAcountNumber()); // trả CustomerEntity
-                String name = (c != null) ? c.getFullName() : t.getToAcountNumber();
+                CustomerEntity c = customerRepository.getCustomerByAccount(t.getToAccountNumber()); // trả CustomerEntity
+                String name = (c != null) ? c.getFullName() : t.getToAccountNumber();
                 displayList.add(new TransactionDisplay(t, name));
             }
             transactions.postValue(displayList); // hợp lệ với MutableLiveData<List<TransactionDisplay>>
