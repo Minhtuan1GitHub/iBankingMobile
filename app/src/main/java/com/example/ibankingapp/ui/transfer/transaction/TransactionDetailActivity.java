@@ -12,6 +12,7 @@ import com.example.ibankingapp.entity.CustomerEntity;
 import com.example.ibankingapp.entity.TransactionEntity;
 import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.ui.home.HomeActivity;
+import com.google.firebase.auth.FirebaseAuth; // Thêm import này
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -57,13 +58,21 @@ public class TransactionDetailActivity extends AppCompatActivity {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
 
+            String currentUserId = FirebaseAuth.getInstance().getUid();
+            String currentUserAccount = "";
+            if (currentUserId != null) {
+                CustomerEntity currentUser = customerRepository.getCustomerById(currentUserId);
+                if (currentUser != null) {
+                    currentUserAccount = currentUser.getAccountNumber();
+                }
+            }
+
             String fromAcc = transaction.getFromAccountNumber();
             String toAcc = transaction.getToAccountNumber();
 
             String senderName = fromAcc;
             String receiverName = toAcc;
 
-            // Tìm tên người gửi/nhận từ
             if (fromAcc != null) {
                 CustomerEntity sender = customerRepository.getCustomerByAccount(fromAcc);
                 if (sender != null && sender.getFullName() != null) senderName = sender.getFullName();
@@ -74,17 +83,21 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 if (receiver != null && receiver.getFullName() != null) receiverName = receiver.getFullName();
             }
 
-
             String finalSenderName = senderName;
             String finalReceiverName = receiverName;
 
+            boolean isNegative = false;
+            String type = transaction.getType();
 
-            boolean isNegative = "WITHDRAW".equals(transaction.getType());
-            if (!isNegative && !"DEPOSIT".equals(transaction.getType())) {
-
+            if ("withdraw".equals(type)) {
                 isNegative = true;
+
+            } else if ("transfer".equals(type)) {
+
+                if (currentUserAccount != null && currentUserAccount.equals(fromAcc)) {
+                    isNegative = true;
+                }
             }
-            if ("DEPOSIT".equals(transaction.getType())) isNegative = false;
 
             boolean finalIsNegative = isNegative;
 

@@ -33,6 +33,8 @@ public interface CustomerDao {
 
     @Query("DELETE FROM customers_db")
     void clearAll();
+    @Query("SELECT * FROM customers_db WHERE id = :id LIMIT 1")
+    CustomerEntity getCustomerById(String id);
 
     @Transaction
     default boolean transfer(String from, String to, double amount){

@@ -306,6 +306,9 @@ public class CustomerRepository {
     public CustomerEntity getCustomerByAccount(String accountNumber) {
         return customerDao.getCustomerByAccount(accountNumber);
     }
+    public CustomerEntity getCustomerById(String id) {
+        return customerDao.getCustomerById(id);
+    }
 
     public LiveData<Customer> getCustomerByUid(String uid) {
         MutableLiveData<Customer> data = new MutableLiveData<>();
