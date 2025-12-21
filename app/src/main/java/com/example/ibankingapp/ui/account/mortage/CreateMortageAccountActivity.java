@@ -8,8 +8,10 @@ import androidx.room.Room;
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityCreatingMortageAccountBinding;
 import com.example.ibankingapp.entity.MortageEntity;
+import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.repository.MortageRepository;
 import com.example.ibankingapp.repository.SavingAccountRepository;
+import com.example.ibankingapp.repository.TransactionRepository;
 import com.example.ibankingapp.viewModel.customer.MortageViewModel;
 import com.example.ibankingapp.viewModel.customer.SavingAccountViewModel;
 
@@ -36,10 +38,14 @@ public class CreateMortageAccountActivity extends AppCompatActivity {
                 new MortageRepository(
                         db.mortageDao(),
                         db.mortagePaymentDao(),
-                        db.customerDao()
+                        db.customerDao(),
+                        db.transactionDao(),
+                        new TransactionRepository(db.transactionDao()),
+                        new CustomerRepository(this)
                 );
 
-        viewModel = new MortageViewModel(repo);
+
+        viewModel = new MortageViewModel(repo, new CustomerRepository(this));
 
 
         binding.createLoanAccount.setOnClickListener(v->createMortage());

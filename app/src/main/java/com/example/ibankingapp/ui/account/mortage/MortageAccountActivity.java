@@ -1,5 +1,6 @@
 package com.example.ibankingapp.ui.account.mortage;
 
+import android.app.Notification;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -14,13 +15,19 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.data.dao.MortageDao;
 import com.example.ibankingapp.data.dao.MortagePaymentDao;
+import com.example.ibankingapp.data.dao.TransactionDao;
 import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.databinding.ActivityLoanBinding;
 import com.example.ibankingapp.entity.CustomerEntity;
 import com.example.ibankingapp.entity.MortageEntity;
 import com.example.ibankingapp.entity.MortagePaymentEntity;
+import com.example.ibankingapp.entity.NotificationEntity;
 import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.repository.MortageRepository;
+import com.example.ibankingapp.repository.NotificationRepository;
+import com.example.ibankingapp.repository.TransactionRepository;
+import com.example.ibankingapp.utils.NotificationHelper;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
 import com.example.ibankingapp.viewModel.customer.MortageViewModel;
 import com.example.ibankingapp.viewModel.customer.SavingAccountViewModel;
@@ -50,15 +57,19 @@ public class MortageAccountActivity extends AppCompatActivity {
         MortageDao dao = AppDatabase.getInstance(this).mortageDao();
         MortagePaymentDao paymentDao = AppDatabase.getInstance(this).mortagePaymentDao();
         CustomerDao customerDao = AppDatabase.getInstance(this).customerDao();
+        TransactionDao transactionDao = AppDatabase.getInstance(this).transactionDao();
+        TransactionRepository transactionRepository = new TransactionRepository(AppDatabase.getInstance(this).transactionDao());
+        CustomerRepository customerRepository = new CustomerRepository(this);
 
-        MortageRepository repo = new MortageRepository(dao, paymentDao, customerDao);
+
+        MortageRepository repo = new MortageRepository(dao, paymentDao, customerDao, transactionDao, transactionRepository, customerRepository );
 
         viewModel = new ViewModelProvider(
                 this,
                 new ViewModelProvider.Factory() {
                     @Override
                     public <T extends ViewModel> T create(Class<T> modelClass) {
-                        return (T) new MortageViewModel(repo);
+                        return (T) new MortageViewModel(repo, customerRepository);
                     }
                 }
         ).get(MortageViewModel.class);
@@ -124,14 +135,14 @@ public class MortageAccountActivity extends AppCompatActivity {
         binding.btnPay.setOnClickListener(v-> payment());
     }
     private void payment() {
-        if (!canPay(currentPayment)) {
-            Toast.makeText(
-                    this,
-                    "Chỉ được thanh toán trong vòng 5 ngày trước hạn",
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
+//        if (!canPay(currentPayment)) {
+//            Toast.makeText(
+//                    this,
+//                    "Chỉ được thanh toán trong vòng 5 ngày trước hạn",
+//                    Toast.LENGTH_LONG
+//            ).show();
+//            return;
+//        }
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         showPin(uid);
@@ -174,7 +185,29 @@ public class MortageAccountActivity extends AppCompatActivity {
         dialog.show();
     }
     private void doPay(){
-        viewModel.payCurrentPeriod(currentPayment, currentMortage, currentCustomer);
+        viewModel.getCurrentCustomer()
+                        .observe(this, customer->{
+                            if (customer == null) return;
+                            String accountNumber = customer.getAccountNumber();
+                            viewModel.payCurrentPeriod(currentPayment, currentMortage, currentCustomer, accountNumber);
+                        });
+
+        NotificationEntity notification = new NotificationEntity();
+        notification.setCustomerId(currentCustomer.getId());
+        notification.setTitle("Thanh toán khoản vay");
+        notification.setMessage("Bạn đã thanh toán khoản vay thành công");
+        notification.setTimestamp(System.currentTimeMillis());
+        notification.setRead(false);
+        NotificationRepository repo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
+        repo.addNotification(notification);
+
+        NotificationHelper.send(
+                this,
+                notification.getTitle(),
+                notification.getMessage());
+
+
+
         Toast.makeText(this, "Thanh toán thành công", Toast.LENGTH_SHORT).show();
     }
 

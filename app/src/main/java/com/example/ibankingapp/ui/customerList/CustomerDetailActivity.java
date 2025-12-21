@@ -13,8 +13,10 @@ import com.example.ibankingapp.databinding.ActivityCustomerDetailBinding;
 import com.example.ibankingapp.entity.MortageEntity;
 import com.example.ibankingapp.entity.SavingAccountEntity;
 import com.example.ibankingapp.model.Customer;
+import com.example.ibankingapp.repository.CustomerRepository;
 import com.example.ibankingapp.repository.MortageRepository;
 import com.example.ibankingapp.repository.SavingAccountRepository;
+import com.example.ibankingapp.repository.TransactionRepository;
 import com.example.ibankingapp.ui.account.mortage.CreateMortageAccountActivity;
 import com.example.ibankingapp.ui.account.saving.CreateSavingAccountActivity;
 import com.example.ibankingapp.viewModel.customer.CustomerViewModel;
@@ -49,8 +51,8 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
 
         AppDatabase db = AppDatabase.getInstance(this);
-        MortageRepository repoMortage = new MortageRepository(db.mortageDao(), db.mortagePaymentDao(), db.customerDao());
-        MortageViewModelFactory factory = new MortageViewModelFactory(repoMortage);
+        MortageRepository repoMortage = new MortageRepository(db.mortageDao(), db.mortagePaymentDao(), db.customerDao(), db.transactionDao(), new TransactionRepository(db.transactionDao()), new CustomerRepository(this));
+        MortageViewModelFactory factory = new MortageViewModelFactory(repoMortage, new CustomerRepository(this));
         SavingAccountRepository repo = new SavingAccountRepository(db.savingAccountDao());
         SavingAccountViewModelFactory fac = new SavingAccountViewModelFactory(repo);
         viewModelMortage = new ViewModelProvider(this, factory).get(MortageViewModel.class);

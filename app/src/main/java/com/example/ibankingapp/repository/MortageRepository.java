@@ -1,10 +1,13 @@
 package com.example.ibankingapp.repository;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.ibankingapp.data.dao.CustomerDao;
 import com.example.ibankingapp.data.dao.MortageDao;
 import com.example.ibankingapp.data.dao.MortagePaymentDao;
+import com.example.ibankingapp.data.dao.TransactionDao;
+import com.example.ibankingapp.data.database.AppDatabase;
 import com.example.ibankingapp.entity.CustomerEntity;
 import com.example.ibankingapp.entity.MortageEntity;
 import com.example.ibankingapp.entity.MortagePaymentEntity;
@@ -23,17 +26,25 @@ public class MortageRepository {
     private final MortageDao dao;
     private final MortagePaymentDao paymentDao;
     private final CustomerDao customerDao;
+    private final TransactionDao transactionDao;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String uid;
+    private final TransactionRepository transactionRepository;
+    private final CustomerRepository customerRepository;
 
 
 
 
 
-    public MortageRepository(MortageDao dao, MortagePaymentDao paymentDao, CustomerDao customerDao) {
+
+
+    public MortageRepository(MortageDao dao, MortagePaymentDao paymentDao, CustomerDao customerDao, TransactionDao transactionDao, TransactionRepository transactionRepository, CustomerRepository customerRepository) {
         this.dao = dao;
         this.paymentDao = paymentDao;
         this.customerDao = customerDao;
+        this.transactionDao = transactionDao;
+        this.transactionRepository = transactionRepository;
+        this.customerRepository = customerRepository;
     }
 
     public void createMortage(MortageEntity mortage) {
@@ -108,8 +119,6 @@ public class MortageRepository {
                                 calculateNextPaymentDate(mortage.getCreatedAt())
                         );
                     }
-
-
 
                     mortage.setRemainingBalance(snapshot.getDouble("remainingBalance") != null ? snapshot.getDouble("remainingBalance") : 0.0);
 
@@ -188,7 +197,7 @@ public class MortageRepository {
         );
     }
 
-    public void payCurrentPeriod(MortagePaymentEntity payment, MortageEntity mortage, CustomerEntity customer) {
+    public void payCurrentPeriod(MortagePaymentEntity payment, MortageEntity mortage, CustomerEntity customer, String accountNumber) {
 
         payment.setPaidAmount(payment.getAmount());
         payment.setPaidAt(System.currentTimeMillis());
@@ -222,13 +231,19 @@ public class MortageRepository {
         db.collection("customers")
                 .document(uid)
                 .update("balance", customer.getBalance() - payment.getAmount())
-                .addOnSuccessListener(v-> Executors.newSingleThreadExecutor().execute(() ->{
+                .addOnSuccessListener(v-> Executors.newSingleThreadExecutor().execute(() -> {
                     customer.setBalance(customer.getBalance() - payment.getAmount());
                     customerDao.insertCustomer(customer);
                 }));
 
-
-
+        transactionRepository.logTransaction(
+                accountNumber,
+                mortage.getAccountNumber(),
+                payment.getAmount(),
+                "SUCCESS",
+                "MORTGAGE_PAYMENT",
+                "Thanh toán vay kỳ " + payment.getPeriod()
+        );
 
 
 
