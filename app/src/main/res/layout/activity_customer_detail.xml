@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
+        android:fitsSystemWindows="true"
         android:background="#F5F5F5">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,9 +25,11 @@
                 android:text="Chi Tiết Khách Hàng"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
                 android:textStyle="bold"
+                android:clickable="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:drawableLeft="@drawable/arrow_back_24"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilName"

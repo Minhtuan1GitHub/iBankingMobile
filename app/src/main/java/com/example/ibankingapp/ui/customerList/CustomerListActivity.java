@@ -20,7 +20,7 @@ public class CustomerListActivity extends AppCompatActivity {
 
     private ActivityCustomerListBinding binding;
     private CustomerRepository repository;
-    private List<Customer> customers;       // danh sách gốc
+    private List<Customer> customers;       // danh sách gốc (dữ liệu nguồn)
     private CustomerAdapter adapter;         // adapter để hiển thị lên RecyclerView
 
     @Override
@@ -32,9 +32,9 @@ public class CustomerListActivity extends AppCompatActivity {
         repository = new CustomerRepository(this);
         customers = new ArrayList<>();
 
+        // Khởi tạo adapter với danh sách rỗng ban đầu
         adapter = new CustomerAdapter(customers, customer -> {
-            // xử lý khi click vào customer
-            // ...
+            // Xử lý khi click vào item
             Intent intent = new Intent(this, CustomerDetailActivity.class);
             intent.putExtra("accountNumber", customer.getAccountNumber());
             startActivity(intent);
@@ -43,10 +43,11 @@ public class CustomerListActivity extends AppCompatActivity {
         binding.rcvCustomers.setAdapter(adapter);
         binding.rcvCustomers.setLayoutManager(new LinearLayoutManager(this));
 
-        loadCustomers();              // load từ Room
-        repository.listenFirestoreChanges();  // sync với Firestore realtime
+        loadCustomers();
 
-        // SEARCH — lọc theo accountNumber
+        repository.listenFirestoreChanges();
+
+        // Xử lý tìm kiếm
         binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -57,46 +58,59 @@ public class CustomerListActivity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-
-
         binding.fabHome.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminActivity.class));
         });
     }
 
     /**
-     * Load tất cả Customers từ Room
+     * Load tất cả Customers từ Room và hiển thị mặc định
      */
     private void loadCustomers() {
         new Thread(() -> {
+            List<Customer> listFromDb = repository.getAllCustomers();
             customers.clear();
-            //customers.addAll(repository.getAllCustomers());
-            for (Customer c: repository.getAllCustomers()){
-                if ("customer".equals(c.getRole())){
+            for (Customer c : listFromDb) {
+                // Chỉ lấy user có role là customer
+                if ("customer".equals(c.getRole())) {
                     customers.add(c);
                 }
             }
-            runOnUiThread(() -> adapter.notifyDataSetChanged());
-        }).start();   // 🔥 QUAN TRỌNG: phải start thread
+
+            runOnUiThread(() -> {
+
+                if (adapter != null) {
+                    adapter.update(customers);
+                }
+            });
+        }).start();
     }
 
     /**
-     * Lọc theo accountNumber
+     * Lọc danh sách theo số tài khoản
      */
     private void filterCustomers(String query) {
         List<Customer> filtered = new ArrayList<>();
 
-        if (query == null || query.isEmpty()) {
-            filtered.addAll(customers);   // nếu search rỗng → hiện toàn bộ
+        if (query == null || query.trim().isEmpty()) {
+            filtered.addAll(customers);
         } else {
+
+            String lowerQuery = query.toLowerCase();
             for (Customer c : customers) {
                 if (c.getAccountNumber() != null &&
-                        c.getAccountNumber().toLowerCase().contains(query.toLowerCase())) {
+                        c.getAccountNumber().toLowerCase().contains(lowerQuery)) {
+                    filtered.add(c);
+                }
+                // (Tùy chọn) Tìm theo tên luôn cho tiện
+                else if (c.getFullName() != null &&
+                        c.getFullName().toLowerCase().contains(lowerQuery)) {
                     filtered.add(c);
                 }
             }
         }
 
-        adapter.update(filtered);   // update adapter
+        // Cập nhật adapter với danh sách đã lọc
+        adapter.update(filtered);
     }
 }

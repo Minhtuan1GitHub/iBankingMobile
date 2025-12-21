@@ -159,7 +159,7 @@
                     android:layout_height="50dp"
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_edittext_glass"
-                    android:hint="Số tài khoản (Tự động)"
+                    android:hint="Số tài khoản"
                     android:inputType="number"
                     android:paddingHorizontal="16dp"
                     android:textColor="@color/white"

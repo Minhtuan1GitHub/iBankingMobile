@@ -153,6 +153,7 @@ public class CustomerDetailActivity extends AppCompatActivity {
 
         customerDetailBinding.createSavingAccount.setOnClickListener(v->createSavingAccount());
         customerDetailBinding.btnMortgage.setOnClickListener(v->createMortageAccount());
+        customerDetailBinding.tvTitle.setOnClickListener(v -> finish());
 
 
 
