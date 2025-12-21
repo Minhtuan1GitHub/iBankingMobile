@@ -6,7 +6,7 @@
     <data>
         <variable
             name="customer"
-            type="com.example.ibankingapp.entity.CustomerEntity" />
+            type="com.example.ibankingapp.model.Customer" />
         <import type="com.example.ibankingapp.utils.StringUtils"/> </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

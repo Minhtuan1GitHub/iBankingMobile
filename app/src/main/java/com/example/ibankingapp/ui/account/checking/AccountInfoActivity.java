@@ -40,7 +40,7 @@ public class AccountInfoActivity extends AppCompatActivity {
         viewModel.getCustomer(uid).observe(this, customer -> {
             if (customer != null) {
 
-                binding.setCustomer((CustomerEntity) customer);
+                binding.setCustomer(customer);
             }
         });
     }
