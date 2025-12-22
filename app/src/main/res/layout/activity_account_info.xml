@@ -162,13 +162,16 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
                             android:paddingVertical="16dp">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:src="@drawable/ic_phone"
                                 app:tint="#0072FF"/>
+
                             <LinearLayout
-                                android:layout_width="match_parent"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="20dp"
                                 android:orientation="vertical">
@@ -187,7 +190,24 @@
                                     android:textSize="16sp"
                                     android:layout_marginTop="4dp"/>
                             </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnEdit"
+                                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:insetLeft="0dp"
+                                android:insetTop="0dp"
+                                android:insetRight="0dp"
+                                android:insetBottom="0dp"
+                                app:icon="@android:drawable/ic_menu_edit"
+                                app:iconTint="#0072FF"
+                                app:iconGravity="textStart"
+                                app:iconPadding="0dp"
+                                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
+                                app:rippleColor="#200072FF" />
                         </LinearLayout>
+
                         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0"/>
 
                         <LinearLayout
