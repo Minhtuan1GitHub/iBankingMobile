@@ -135,14 +135,14 @@ public class MortageAccountActivity extends AppCompatActivity {
         binding.btnPay.setOnClickListener(v-> payment());
     }
     private void payment() {
-//        if (!canPay(currentPayment)) {
-//            Toast.makeText(
-//                    this,
-//                    "Chỉ được thanh toán trong vòng 5 ngày trước hạn",
-//                    Toast.LENGTH_LONG
-//            ).show();
-//            return;
-//        }
+        if (!canPay(currentPayment)) {
+            Toast.makeText(
+                    this,
+                    "Chỉ được thanh toán trong vòng 5 ngày trước hạn",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         showPin(uid);
@@ -184,31 +184,44 @@ public class MortageAccountActivity extends AppCompatActivity {
 
         dialog.show();
     }
-    private void doPay(){
-        viewModel.getCurrentCustomer()
-                        .observe(this, customer->{
-                            if (customer == null) return;
-                            String accountNumber = customer.getAccountNumber();
-                            viewModel.payCurrentPeriod(currentPayment, currentMortage, currentCustomer, accountNumber);
-                        });
+    private void doPay() {
+        if (currentCustomer == null) {
+            Toast.makeText(this, "Đang tải thông tin khách hàng, vui lòng thử lại sau!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (currentPayment == null) {
+            Toast.makeText(this, "Không tìm thấy kỳ thanh toán nào.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (currentMortage == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin khoản vay.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        NotificationEntity notification = new NotificationEntity();
-        notification.setCustomerId(currentCustomer.getId());
-        notification.setTitle("Thanh toán khoản vay");
-        notification.setMessage("Bạn đã thanh toán khoản vay thành công");
-        notification.setTimestamp(System.currentTimeMillis());
-        notification.setRead(false);
-        NotificationRepository repo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
-        repo.addNotification(notification);
+        String accountNumber = currentCustomer.getAccountNumber();
 
-        NotificationHelper.send(
-                this,
-                notification.getTitle(),
-                notification.getMessage());
+        viewModel.payCurrentPeriod(currentPayment, currentMortage, currentCustomer, accountNumber);
 
+        new Thread(() -> {
+            NotificationEntity notification = new NotificationEntity();
+            notification.setCustomerId(currentCustomer.getId());
+            notification.setTitle("Thanh toán khoản vay");
+            notification.setMessage("Bạn đã thanh toán khoản vay thành công");
+            notification.setTimestamp(System.currentTimeMillis());
+            notification.setRead(false);
+            NotificationRepository repo = new NotificationRepository(AppDatabase.getInstance(this).notificationDao());
+            repo.addNotification(notification);
 
+            runOnUiThread(() -> {
+                NotificationHelper.send(
+                        this,
+                        notification.getTitle(),
+                        notification.getMessage());
 
-        Toast.makeText(this, "Thanh toán thành công", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+
+            });
+        }).start();
     }
 
     private boolean canPay(MortagePaymentEntity payment) {
@@ -222,6 +235,7 @@ public class MortageAccountActivity extends AppCompatActivity {
     }
     private CustomerEntity toEntity(Customer c) {
         CustomerEntity e = new CustomerEntity();
+        e.setAccountNumber(c.getAccountNumber());
         e.setId(c.getId());
         e.setFullName(c.getFullName());
         e.setBalance(c.getBalance());

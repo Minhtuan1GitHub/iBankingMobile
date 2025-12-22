@@ -118,11 +118,9 @@ public class SuccessfullTransferActivity extends AppCompatActivity {
         // Nút Giao dịch mới / Thử lại
         binding.btnNewTransaction.setOnClickListener(v -> {
             if (isSuccess) {
-                // Lấy loại giao dịch (Cần kiểm tra null để tránh lỗi)
                 String type = getIntent().getStringExtra("transactionType");
-                if (type == null) type = "TRANSFER"; // Mặc định là chuyển khoản
+                if (type == null) type = "TRANSFER";
 
-                // Khởi tạo Intent về HomeActivity
                 Intent intent = new Intent(this, HomeActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 

@@ -173,6 +173,9 @@ public class BillPaymentActivity extends AppCompatActivity {
                 intent.putExtra("amount", Double.valueOf(bill.getAmount()));
                 intent.putExtra("time", System.currentTimeMillis());
                 intent.putExtra("name", bill.getCustomerName());
+                intent.putExtra("transactionType", "WITHDRAW");
+                intent.putExtra("recipientName", "Nạp tiền điện thoại");
+                intent.putExtra("recipientAccount", bill.getCustomerCode());
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Thanh toán thất bại", Toast.LENGTH_SHORT).show();

@@ -154,6 +154,10 @@ public class HomeActivity extends AppCompatActivity {
 
         });
 
+        homeBinding.btnHistory.setOnClickListener(v -> {
+            startActivity(new Intent(this, HistoryTransactionActivity.class));
+        });
+
         homeBinding.navHistory.setOnClickListener(v -> {
             startActivity(new Intent(this, HistoryTransactionActivity.class));
         });

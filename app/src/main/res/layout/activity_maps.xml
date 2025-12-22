@@ -17,10 +17,10 @@
             android:id="@+id/fab_nearest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
             android:layout_margin="16dp"
-            android:src="@drawable/outline_assistant_direction_24"
             android:contentDescription="Nearest"
-            android:layout_gravity="bottom|end" />
+            android:src="@drawable/outline_assistant_direction_24" />
 
     </FrameLayout>
 </layout>
